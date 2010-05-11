@@ -51,31 +51,6 @@
 (define-structure ray o direction)
 
 ;-------------------------------------------------------------------------------
-; Point operations
-;-------------------------------------------------------------------------------
-
-;;; Point rotation
-
-(define (rotation:point vec r-angle)
-  (make-point (- (* (point-x vec) (cos r-angle))
-                 (* (point-y vec) (sin r-angle)))
-              (+ (* (point-y vec) (cos r-angle))
-                 (* (point-x vec) (sin r-angle)))))
-
-;;; Point rotation
-
-(define (rotation:point-w/reference ref p r-angle)
-  (vect2:+vect2 ref
-    (rotation:point
-      (vect2:-vect2 p ref)
-      r-angle)))
-
-;;; Point translation
-
-(define (translation:point p vec)
-  (vect2:+vect2 p vec))
-
-;-------------------------------------------------------------------------------
 ; Segments
 ;-------------------------------------------------------------------------------
 
@@ -323,16 +298,6 @@
       (any (lambda (it) (vect2:=? it e)) plis1))
     plis2))
 
-;;; Calculate the tangent vector in a point-list given the relative position
-
-(define (pseq:tangent-in-relative plis rel)
-  (let ((approx (pseq->segment plis))) ; TODO: handle pseqs properly
-    (vect2:normalize
-      (segment->direction
-        (make-segment
-          (segment:relative-position->point approx rel)
-          (segment-b approx))))))
-
 ;;; Is point inside the polygon pseq?
 
 ;; http://www.ecse.rpi.edu/Homepages/wrf/Research/Short_Notes/pnpoly.html
@@ -353,24 +318,44 @@
       (iter c (cdr a-points) (cdr b-points)))))
   (iter #f point-list (cons (last point-list) point-list)))
 
-;;; Return a random point that is inside a given pseq
+;;; Calculate the tangent vector in a point-list given the relative position
 
-(define (pseq:make-random-point-inside point-list)
-  (define (try origin delta)
-    (let ((p (make-point (+ (point-x origin)
-                              (* (point-x delta) (random-real)))
-                           (+ (point-y origin)
-                              (* (point-y delta) (random-real))))))
-      (if (pseq:point-inside? point-list p)
-          p
-        (try origin delta))))
-  (let* ((bounding-box (pseq:bounding-box point-list))
-         (bb-left-corner (bounding-box-lefttop bounding-box))
-         (bb-right-corner (bounding-box-rightbottom bounding-box)))
-    (try
-      bb-left-corner
-      (vect2:-vect2 bb-right-corner
-                    bb-left-corner))))
+(define (pseq:tangent-in-relative plis rel)
+  (let ((approx (pseq->segment plis))) ; TODO: handle pseqs properly
+    (vect2:normalize
+      (segment->direction
+        (make-segment
+          (segment:relative-position->point approx rel)
+          (segment-b approx))))))
+
+;-------------------------------------------------------------------------------
+; Rotation
+;-------------------------------------------------------------------------------
+
+;;; Point rotation
+
+(define (rotation:point vec r-angle)
+  (make-point (- (* (point-x vec) (cos r-angle))
+                 (* (point-y vec) (sin r-angle)))
+              (+ (* (point-y vec) (cos r-angle))
+                 (* (point-x vec) (sin r-angle)))))
+
+;;; Point rotation
+
+(define (rotation:point-w/reference ref p r-angle)
+  (vect2:+vect2 ref
+    (rotation:point
+      (vect2:-vect2 p ref)
+      r-angle)))
+
+;-------------------------------------------------------------------------------
+; Translation
+;-------------------------------------------------------------------------------
+
+;;; Point translation
+
+(define (translation:point p vec)
+  (vect2:+vect2 p vec))
 
 ;-------------------------------------------------------------------------------
 ; Distance
