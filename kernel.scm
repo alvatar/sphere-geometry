@@ -44,6 +44,60 @@
 
 (define-structure line a b c)
 
+;;; Build a line from a point and a direction vector
+
+(define (point+direction->line p dir)
+  (let ((dx (direction-x dir))
+        (dy (direction-y dir)))
+    (make-line (- dy)
+               dx
+               (- (* (point-x p)
+                     dy)
+                  (* (point-y p)
+                     dx)))))
+
+;;; Build a line from two points
+
+(define (point+point->line p q)
+  (let ((px (point-x p))
+        (py (point-y p))
+        (qx (point-x q))
+        (qy (point-y q)))
+    (cond
+     ((=~ qy py)
+      (cond
+       ((> qx px)
+        (make-line 0.0 1.0 (- py)))
+       ((=~ qx px)
+        (make-line 0.0 0.0 0.0))
+       (else
+        (make-line 0.0 -1.0 py))))
+     ((=~ qx px)
+      (cond
+       ((> qy py)
+        (make-line -1.0 0.0 px))
+       ((=~ qy py) 
+        (make-line 0.0 0.0 0.0))
+       (else
+        (make-line 1.0 0.0 (- px)))))
+     (else
+      (let ((a (- py qy))
+            (b (- qx px)))
+        (make-line a
+                   b
+                   (- (+ (* px a)
+                         (* py b)))))))))
+
+;;; Build a line from a segment
+
+(define (segment->line seg)
+  (point+point->line (segment-a seg) (segment-b seg)))
+
+;;; Build a line from a ray
+
+(define (ray->line r) ; TODO
+  (make-line 0 0 0))
+
 ;-------------------------------------------------------------------------------
 ; Ray (semi-infinite line) 2d
 ;-------------------------------------------------------------------------------
@@ -460,8 +514,36 @@
 
 ;;; Segment-pseq (closed pseq) intersection
 
+#|
 (define (intersection:segment-pseq seg plis)
   (intersection:segment-pseq seg (pseq:close plis)))
+  |#
+
+;;; Infinite line - infinite line interesection
+
+(define (intersection:line-line l1 l2)
+  (let ((l1a (line-a l1))
+        (l1b (line-b l1))
+        (l1c (line-c l1))
+        (l2a (line-a l2))
+        (l2b (line-b l2))
+        (l2c (line-c l2)))
+    (aif den ~zero? (- (* l1a l2b)
+                       (* l2a l1b))
+          (if (and (~zero? (- (* l1a l2c)
+                              (* l2a l1c)))
+                   (~zero? (- (* l1b l2c)
+                              (* l2b l1c))))
+              'line
+            'no-intersection)
+      (aif nom1 finite? (- (* l1b l2c)
+                           (* l2b l1c))
+        (aif nom2 finite? (- (* l2a l1c)
+                             (* l1a l2c))
+          (make-point (/ nom1 den)
+                      (/ nom2 den))
+          'no-intersection)
+        'no-intersection))))
 
 ;-------------------------------------------------------------------------------
 ; Bounding boxes
