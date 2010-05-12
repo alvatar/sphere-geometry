@@ -69,7 +69,8 @@
        ((> qx px)
         (make-line 0.0 1.0 (- py)))
        ((=~ qx px)
-        (make-line 0.0 0.0 0.0))
+        'point)
+        ;(make-line 0.0 0.0 0.0))
        (else
         (make-line 0.0 -1.0 py))))
      ((=~ qx px)
@@ -77,7 +78,8 @@
        ((> qy py)
         (make-line -1.0 0.0 px))
        ((=~ qy py) 
-        (make-line 0.0 0.0 0.0))
+        'point)
+        ;(make-line 0.0 0.0 0.0))
        (else
         (make-line 1.0 0.0 (- px)))))
      (else
