@@ -10,8 +10,8 @@
 
 (import (std srfi/1))
 
+(import core/debug)
 (import math/algebra)
-(import utils/misc)
 
 ;;; run-time checks
 
