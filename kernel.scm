@@ -11,6 +11,7 @@
 (import (std srfi/1))
 
 (import core/debug)
+(import core/syntax)
 (import math/algebra)
 
 ;;; run-time checks
