@@ -39,6 +39,12 @@
 (define direction-x vect2-x)
 (define direction-y vect2-y)
 
+;; Perpendicular direction
+
+(define (direction:perpendicular dir)
+  (make-direction (direction-y dir)
+                  (- (direction-x dir))))
+
 ;-------------------------------------------------------------------------------
 ; Infinite lines 2d
 ;-------------------------------------------------------------------------------
