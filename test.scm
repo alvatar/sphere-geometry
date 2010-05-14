@@ -5,7 +5,7 @@
 ;;; Tests for geometry package
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(import ../srfi/64)
+(import (std srfi/64))
 (import math/algebra)
 (import kernel)
 
