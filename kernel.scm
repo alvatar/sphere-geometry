@@ -528,6 +528,11 @@
   (intersection:segment-pseq seg (pseq:close plis)))
   |#
 
+;;; Infinite line - segment intersection
+
+(define (intersection:line-segment line seg)
+  '()) ; TODO!
+
 ;;; Infinite line - infinite line interesection
 
 (define (intersection:line-line l1 l2)
