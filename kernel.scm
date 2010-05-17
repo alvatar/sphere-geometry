@@ -158,6 +158,11 @@
           (=~ bx px)
           (=~ by py)))))
 
+;;; Point collinear to segment?
+
+(define (segment:point-collinear-on? seg p)
+  (collinear-ordered-points? (segment-a seg) p (segment-b seg)))
+
 ;;; Tell whether the two segments are connected
 
 (define (segment:connected-segment? seg1 seg2)
@@ -531,7 +536,11 @@
 ;;; Infinite line - segment intersection
 
 (define (intersection:line-segment line seg)
-  '()) ; TODO!
+  (aif i point? (intersection:line-line line (segment->line seg))
+       (if (segment:point-collinear-on? seg i)
+           i
+           'no-intersection)
+       i))
 
 ;;; Infinite line - infinite line interesection
 
@@ -594,3 +603,37 @@
 
 (define (bounding-box:size-segment bb)
   (segment->direction (bounding-box:diagonal-segment bb)))
+
+;-------------------------------------------------------------------------------
+; Predicates
+;-------------------------------------------------------------------------------
+
+;;; Are these points collinear and ordered (left-to-right or right-to-left)?
+
+(define (collinear-ordered-points? p q r)
+  (cond
+   ((< (point-x p) (point-x q))
+    (not (< (point-x r) (point-x q))))
+   ((< (point-x q) (point-x p))
+    (not (< (point-x q) (point-x r))))
+   ((< (point-y p) (point-y q))
+    (not (< (point-y r) (point-y q))))
+   ((< (point-y q) (point-y p))
+    (not (< (point-y q) (point-y r))))
+   (else
+    #t)))
+
+;;; Are these points collinear and strictly ordered?
+
+(define (collinear-strictly-ordered-points? p q r)
+  (cond
+   ((< (point-x p) (point-x q))
+    (< (point-x q) (point-x r)))
+   ((< (point-x q) (point-x p))
+    (< (point-x r) (point-x q)))
+   ((< (point-y p) (point-y q))
+    (< (point-y q) (point-y r)))
+   ((< (point-y q) (point-y p))
+    (< (point-y r) (point-y q)))
+   (else
+    #f)))
