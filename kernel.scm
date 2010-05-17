@@ -216,7 +216,34 @@
   (make-segment (first plis)
                 (last plis)))
 
-;; Is end point?
+;;; Length of a pseq
+
+(define (pseq:lenght pseq)
+  (fold (lambda (s l) (+ l (segment:length s)))
+        0
+        (pseq->lsegments pseq)))
+#|
+  (pair-fold
+   (lambda (pair accum)
+     (pp accum)
+     (+
+      (if (null? (cdr pair))
+          0
+          (* (car pair) (cadr pair)))
+      accum))
+   0
+   '(0 1 2 3 4)))
+|#
+
+;;; Convert a pseq to a list of independent segments
+
+(define (pseq->segment pseq)
+  (map
+   (lambda (a b) (list a b))
+   (car pseq)
+   pseq))
+
+;;; Is end point?
 
 (define (pseq:is-end-point? segment point)
   (let* ((px (point-x point))
