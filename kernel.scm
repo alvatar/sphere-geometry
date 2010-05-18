@@ -161,7 +161,12 @@
 
 ;;; Point collinear to segment?
 
-(define (segment:point-collinear-on? seg p)
+(define (segment:collinear-point? seg p)
+  #t) ; TODO
+
+;;; Point collinear and on the segment?
+
+(define (segment:collinear-point-on? seg p)
   (collinear-ordered-points? (segment-a seg) p (segment-b seg)))
 
 ;;; Tell whether the two segments are connected
@@ -186,6 +191,29 @@
     (make-point (+ (point-x O) (* (point-x vec) rel))
                 (+ (point-y O) (* (point-y vec) rel)))))
 
+;;; Calculate relative position given a point collinear and on the segment
+
+(define (segment:point->relative-position seg p)
+  (if (segment:collinear-point-on? seg p)
+      (let ((s1 (segment-a seg))
+            (s2 (segment-b seg)))
+        (cond
+         ((=~ (point-x s1) (point-x s2))
+          (/ (- (point-y p) (point-y s1)) (- (point-y s2) (point-y s1))))
+         ((=~ (point-y s1) (point-y s2))
+          (/ (- (point-x p) (point-x s1)) (- (point-x s2) (point-x s1))))
+         (else
+          (let ((c1 (/ (- (point-y p) (point-y s1)) (- (point-y s2) (point-y s1))))
+                (c2 (/ (- (point-x p) (point-x s1)) (- (point-x s2) (point-x s1)))))
+            (if (=~ c1 c2)
+              c1
+              (begin (pp c1) (pp c2) (error "THIS SHOULDN'T HAPPEN")))))))
+      'not-collinear))
+
+;(pp (segment:point->relative-position (make-segment (make-point 1.0 2.0) (make-point 3.0 2.0)) (make-point 2.0 2.0)))
+;(pp (segment:point->relative-position (make-segment (make-point 1.0 2.0) (make-point 4.0 2.0)) (make-point 2.0 2.0)))
+;(pp (segment:point->relative-position (make-segment (make-point 1.0 1.0) (make-point 4.0 4.0)) (make-point 2.0 2.0)))
+
 ;;; Calculate the segment's mid point
 
 (define (segment:mid-point seg)
@@ -201,9 +229,9 @@
 ;;; Is pseq?
 
 (define (pseq? plis)
-  (and (notnull? plis)
-       (every (lambda (p) (point? p))
-              plis)))
+  (and (list? plis)
+       (notnull? plis)
+       (every (lambda (p) (point? p)) plis)))
 
 ;;; Is pseq? (shallow version)
 
@@ -220,7 +248,6 @@
 ;;; Convert a pseq to a list of independent segments
 
 (define (pseq->lsegments pseq)
-  (pp pseq)
   (map (lambda (a b) (make-segment b a))
        (cdr pseq)
        pseq))
@@ -232,7 +259,6 @@
 					;      (pseq->lsegments pseq)))
   (pair-fold
    (lambda (pair accum)
-     (pp accum)
      (+
       (if (null? (cdr pair))
           0
@@ -344,6 +370,7 @@
     (iter (car plis) (cdr plis))))
 
 ;;; pseq right-most point
+;;; TODO: if equal, test y!!!
 
 (define (pseq:extreme-right plis)
   (pseq:extreme
@@ -560,7 +587,7 @@
 
 (define (intersection:line-segment line seg)
   (aif i point? (intersection:line-line line (segment->line seg))
-       (if (segment:point-collinear-on? seg i)
+       (if (segment:collinear-point-on? seg i)
            i
            'no-intersection)
        i))
@@ -632,6 +659,7 @@
 ;-------------------------------------------------------------------------------
 
 ;;; Are these points collinear and ordered (left-to-right or right-to-left)?
+;;; TODO: Convert to pseqs!!
 
 (define (collinear-ordered-points? p q r)
   (cond
