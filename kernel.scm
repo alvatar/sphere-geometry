@@ -11,6 +11,7 @@
 (import (std srfi/1))
 
 (import core/debug)
+(import core/list)
 (import core/syntax)
 (import math/algebra)
 
@@ -216,31 +217,28 @@
   (make-segment (first plis)
                 (last plis)))
 
-;;; Length of a pseq
+;;; Convert a pseq to a list of independent segments
 
-(define (pseq:lenght pseq)
-  (fold (lambda (s l) (+ l (segment:length s)))
-        0
-        (pseq->lsegments pseq)))
-#|
+(define (pseq->lsegments pseq)
+  (pp pseq)
+  (map (lambda (a b) (make-segment b a))
+       (cdr pseq)
+       pseq))
+
+;;; Length of a pseq
+(define (pseq:length pseq)
+					;(fold (lambda (s l) (+ l (segment:length s)))
+					;       0
+					;      (pseq->lsegments pseq)))
   (pair-fold
    (lambda (pair accum)
      (pp accum)
      (+
       (if (null? (cdr pair))
           0
-          (* (car pair) (cadr pair)))
+	  (segment:length (make-segment (car pair) (cadr pair)))) ; (* (car pair) (cadr pair)))
       accum))
    0
-   '(0 1 2 3 4)))
-|#
-
-;;; Convert a pseq to a list of independent segments
-
-(define (pseq->segment pseq)
-  (map
-   (lambda (a b) (list a b))
-   (car pseq)
    pseq))
 
 ;;; Is end point?
@@ -555,10 +553,8 @@
 
 ;;; Segment-pseq (closed pseq) intersection
 
-#|
-(define (intersection:segment-pseq seg plis)
-  (intersection:segment-pseq seg (pseq:close plis)))
-  |#
+;(define (intersection:segment-pseq seg plis)
+ ; (intersection:segment-pseq seg (pseq:close plis)))
 
 ;;; Infinite line - segment intersection
 
