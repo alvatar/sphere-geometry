@@ -40,7 +40,7 @@
 (define direction-x vect2-x)
 (define direction-y vect2-y)
 
-;; Perpendicular direction
+;;; Perpendicular direction
 
 (define (direction:perpendicular dir)
   (make-direction (direction-y dir)
@@ -98,21 +98,21 @@
                    (- (+ (* px a)
                          (* py b)))))))))
 
-;;; Build a line from a segment
+;;; Get line direction
 
-(define (segment->line seg)
-  (point+point->line (segment-a seg) (segment-b seg)))
-
-;;; Build a line from a ray
-
-(define (ray->line r) ; TODO
-  (make-line 0 0 0))
+(define (line->direction line)
+  (make-direction (line-b line) (- (line-a line))))
 
 ;-------------------------------------------------------------------------------
 ; Ray (semi-infinite line) 2d
 ;-------------------------------------------------------------------------------
 
 (define-structure ray o direction)
+
+;;; Build a line from a ray
+
+(define (ray->line r) ; TODO
+  (make-line 0 0 0))
 
 ;-------------------------------------------------------------------------------
 ; Segments
@@ -127,6 +127,17 @@
   (vect2:-vect2
     (segment-b seg)
     (segment-a seg)))
+
+;;; Build a line from a segment
+
+(define (segment->line seg)
+  (point+point->line (segment-a seg) (segment-b seg)))
+
+;;; Get the list of points that make the segment
+
+(define (segment->pseq seg)
+  (list (segment-a seg)
+        (segment-b seg)))
 
 ;;; Segment length
 
@@ -199,14 +210,14 @@
             (s2 (segment-b seg)))
         (cond
          ((=~ (point-x s1) (point-x s2))
-          (/ (- (point-y p) (point-y s1)) (- (point-y s2) (point-y s1))))
+          (- 1.0 (/ (- (point-y p) (point-y s1)) (- (point-y s2) (point-y s1)))))
          ((=~ (point-y s1) (point-y s2))
-          (/ (- (point-x p) (point-x s1)) (- (point-x s2) (point-x s1))))
+          (- 1.0 (/ (- (point-x p) (point-x s1)) (- (point-x s2) (point-x s1)))))
          (else
           (let ((c1 (/ (- (point-y p) (point-y s1)) (- (point-y s2) (point-y s1))))
                 (c2 (/ (- (point-x p) (point-x s1)) (- (point-x s2) (point-x s1)))))
             (if (=~ c1 c2)
-              c1
+              (- 1.0 c1)
               (begin (pp c1) (pp c2) (error "THIS SHOULDN'T HAPPEN")))))))
       'not-collinear))
 
