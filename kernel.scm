@@ -302,10 +302,17 @@
   (or (pseq:is-end-point? p2 (first p1))
       (pseq:is-end-point? p2 (last p1))))
 
+;;; Is the pseq closed (as a polygon)
+
+(define (pseq:closed? pseq)
+  (vect2:=? (first pseq) (last pseq)))
+
 ;;; Close a point-list (repeats first point in the last position)
 
-(define (pseq:close plis)
-  (snoc plis (car plis)))
+(define (pseq:close pseq)
+  (if (pseq:closed? pseq)
+      pseq
+      (snoc plis (car pseq))))
 
 ;;; Append two point lists, appends always after (optimized for second one being shorter)
 
@@ -358,12 +365,14 @@
       (vect2:/scalar sum (exact->inexact n)))
      (else
       (iter
-        (+ 1 n)
-        (vect2:+vect2 sum (car plis-tail))
-        (cdr plis-tail)))))
+       (add1 n)
+       (vect2:+vect2 sum (car plis-tail))
+       (cdr plis-tail)))))
   (cond
    ((null? plis)
     (error "Argument #1 should be a point list"))
+   ((pseq:closed? plis)
+    (iter 0 (make-point 0.0 0.0) (cdr plis)))
    (else
     (iter 0 (make-point 0.0 0.0) plis))))
 
@@ -381,15 +390,18 @@
     (iter (car plis) (cdr plis))))
 
 ;;; pseq right-most point
-;;; TODO: if equal, test y!!!
 
 (define (pseq:extreme-right plis)
   (pseq:extreme
     plis
     (lambda (current next)
-      (if (< (point-x current) (point-x next))
-          next
-        current))))
+      (cond
+       ((< (point-x current) (point-x next))
+        next)
+       ((= (point-x current) (point-x next))
+        (if (< (point-y current) (point-y next)) next current))
+       (else
+        current)))))
 
 ;;; pseq left-most point
 
@@ -397,9 +409,13 @@
   (pseq:extreme
     plis
     (lambda (current next)
-      (if (> (point-x current) (point-x next))
-          next
-        current))))
+      (cond
+       ((> (point-x current) (point-x next))
+        next)
+       ((= (point-x current) (point-x next))
+        (if (> (point-y current) (point-y next)) next current))
+       (else
+        current)))))
 
 ;;; pseq top-most point
 
@@ -407,9 +423,13 @@
   (pseq:extreme
     plis
     (lambda (current next)
-      (if (< (point-y current) (point-y next))
-          next
-        current))))
+      (cond
+       ((< (point-y current) (point-y next))
+        next)
+       ((= (point-y current) (point-y next))
+        (if (< (point-x current) (point-x next)) next current))
+       (else
+        current)))))
 
 ;;; pseq bottom-most point
 
@@ -417,9 +437,13 @@
   (pseq:extreme
     plis
     (lambda (current next)
-      (if (> (point-x current) (point-x next))
-          next
-        current))))
+      (cond
+       ((> (point-y current) (point-y next))
+        next)
+       ((= (point-y current) (point-y next))
+        (if (> (point-x current) (point-x next)) next current))
+       (else
+        current)))))
 
 ;;; Find a common point of two given point lists
 

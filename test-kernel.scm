@@ -33,6 +33,37 @@
   (make-line 0.0 1.0 -1.0))
 
 ;-------------------------------------------------------------------------------
+; pseq
+;-------------------------------------------------------------------------------
+
+(test-equal-vect2
+ "centroid"
+ (pseq:centroid
+  (list (make-point 0.0 0.0)
+        (make-point 2.0 0.0)
+        (make-point 2.0 2.0)
+        (make-point 0.0 2.0)))
+ (make-point 1.0 1.0))
+
+(test-equal-vect2
+ "right-most"
+ (pseq:extreme-right
+  (list (make-point 0.0 1.0)
+        (make-point 1.0 1.0)
+        (make-point 2.0 2.0)
+        (make-point 2.0 3.0)))
+ (make-point 2.0 3.0))
+
+(test-equal-vect2
+ "bottom-most"
+ (pseq:extreme-bottom
+  (list (make-point 0.0 1.0)
+        (make-point 1.0 1.0)
+        (make-point 2.0 3.0)
+        (make-point 3.0 3.0)))
+ (make-point 0.0 1.0))
+
+;-------------------------------------------------------------------------------
 ; Intersections
 ;-------------------------------------------------------------------------------
 
