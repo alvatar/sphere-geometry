@@ -173,7 +173,7 @@
 ;;; Point collinear to segment?
 
 (define (segment:collinear-point? seg p)
-  #t) ; TODO
+  (error "unimplemented")) ; TODO
 
 ;;; Point collinear and on the segment?
 
@@ -210,20 +210,16 @@
             (s2 (segment-b seg)))
         (cond
          ((=~ (point-x s1) (point-x s2))
-          (- 1.0 (/ (- (point-y p) (point-y s1)) (- (point-y s2) (point-y s1)))))
+          (/ (- (point-y p) (point-y s1)) (- (point-y s2) (point-y s1))))
          ((=~ (point-y s1) (point-y s2))
-          (- 1.0 (/ (- (point-x p) (point-x s1)) (- (point-x s2) (point-x s1)))))
+          (/ (- (point-x p) (point-x s1)) (- (point-x s2) (point-x s1))))
          (else
           (let ((c1 (/ (- (point-y p) (point-y s1)) (- (point-y s2) (point-y s1))))
                 (c2 (/ (- (point-x p) (point-x s1)) (- (point-x s2) (point-x s1)))))
             (if (=~ c1 c2)
-              (- 1.0 c1)
-              (begin (pp c1) (pp c2) (error "THIS SHOULDN'T HAPPEN")))))))
+                c1
+                (begin (pp c1) (pp c2) (error "THIS SHOULDN'T HAPPEN")))))))
       'not-collinear))
-
-;(pp (segment:point->relative-position (make-segment (make-point 1.0 2.0) (make-point 3.0 2.0)) (make-point 2.0 2.0)))
-;(pp (segment:point->relative-position (make-segment (make-point 1.0 2.0) (make-point 4.0 2.0)) (make-point 2.0 2.0)))
-;(pp (segment:point->relative-position (make-segment (make-point 1.0 1.0) (make-point 4.0 4.0)) (make-point 2.0 2.0)))
 
 ;;; Calculate the segment's mid point
 
@@ -376,74 +372,65 @@
    (else
     (iter 0 (make-point 0.0 0.0) plis))))
 
-;;; pseq extreme point
-
-(define (pseq:extreme plis f)
-  (define (iter current plis-tail)
-    (cond
-     ((null? plis-tail)
-      current)
-     (else
-       (iter (f current (car plis-tail)) (cdr plis-tail)))))
-  (if (null? plis)
-      (error "Argument #1 must be a point list")
-    (iter (car plis) (cdr plis))))
-
 ;;; pseq right-most point
 
-(define (pseq:extreme-right plis)
-  (pseq:extreme
-    plis
-    (lambda (current next)
-      (cond
-       ((< (point-x current) (point-x next))
-        next)
-       ((= (point-x current) (point-x next))
-        (if (< (point-y current) (point-y next)) next current))
-       (else
-        current)))))
+(define (pseq:extreme-right pseq)
+  (reduce
+   (lambda (current next)
+     (cond
+      ((< (point-x current) (point-x next))
+       next)
+      ((= (point-x current) (point-x next))
+       (if (< (point-y current) (point-y next)) next current)) ; then top
+      (else
+       current)))
+   (car pseq)
+   pseq))
 
 ;;; pseq left-most point
 
-(define (pseq:extreme-left plis)
-  (pseq:extreme
-    plis
-    (lambda (current next)
-      (cond
-       ((> (point-x current) (point-x next))
-        next)
-       ((= (point-x current) (point-x next))
-        (if (> (point-y current) (point-y next)) next current))
-       (else
-        current)))))
+(define (pseq:extreme-left pseq)
+  (reduce
+   (lambda (current next)
+     (cond
+      ((> (point-x current) (point-x next))
+       next)
+      ((= (point-x current) (point-x next))
+       (if (> (point-y current) (point-y next)) next current)) ; then bottom
+      (else
+       current)))
+   (car pseq)
+   pseq))
 
 ;;; pseq top-most point
 
-(define (pseq:extreme-top plis)
-  (pseq:extreme
-    plis
-    (lambda (current next)
-      (cond
-       ((< (point-y current) (point-y next))
-        next)
-       ((= (point-y current) (point-y next))
-        (if (< (point-x current) (point-x next)) next current))
-       (else
-        current)))))
+(define (pseq:extreme-top pseq)
+  (reduce
+   (lambda (current next)
+     (cond
+      ((< (point-y current) (point-y next))
+       next)
+      ((= (point-y current) (point-y next))
+       (if (< (point-x current) (point-x next)) next current)) ; then right
+      (else
+       current)))
+   (car pseq)
+   pseq))
 
 ;;; pseq bottom-most point
 
-(define (pseq:extreme-bottom plis)
-  (pseq:extreme
-    plis
-    (lambda (current next)
-      (cond
-       ((> (point-y current) (point-y next))
-        next)
-       ((= (point-y current) (point-y next))
-        (if (> (point-x current) (point-x next)) next current))
-       (else
-        current)))))
+(define (pseq:extreme-bottom pseq)
+  (reduce
+   (lambda (current next)
+     (cond
+      ((> (point-y current) (point-y next))
+       next)
+      ((= (point-y current) (point-y next))
+       (if (> (point-x current) (point-x next)) next current)) ; then left
+      (else
+       current)))
+   (car pseq)
+   pseq))
 
 ;;; Find a common point of two given point lists
 

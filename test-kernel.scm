@@ -14,6 +14,11 @@
    ((_ name expr result)
     (test-assert name (vect2:=? expr result)))))
 
+(define-syntax test-equal-point2
+  (syntax-rules ()
+   ((_ name expr result)
+    (test-assert name (point:=? expr result)))))
+
 ;-------------------------------------------------------------------------------
 (test-begin "geometry")
 ;-------------------------------------------------------------------------------
@@ -33,6 +38,15 @@
   (make-line 0.0 1.0 -1.0))
 
 ;-------------------------------------------------------------------------------
+; Segment
+;-------------------------------------------------------------------------------
+
+(test-equal
+ "segment:point-relative-position"
+ (segment:point->relative-position (make-segment (make-point 1.0 2.0) (make-point 3.0 2.0)) (make-point 2.0 2.0))
+ 0.5)
+
+;-------------------------------------------------------------------------------
 ; pseq
 ;-------------------------------------------------------------------------------
 
@@ -46,7 +60,7 @@
  (make-point 1.0 1.0))
 
 (test-equal-vect2
- "right-most"
+ "extreme-right"
  (pseq:extreme-right
   (list (make-point 0.0 1.0)
         (make-point 1.0 1.0)
@@ -55,7 +69,7 @@
  (make-point 2.0 3.0))
 
 (test-equal-vect2
- "bottom-most"
+ "extreme-bottom"
  (pseq:extreme-bottom
   (list (make-point 0.0 1.0)
         (make-point 1.0 1.0)
