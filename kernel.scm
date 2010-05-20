@@ -600,7 +600,11 @@
   (aif i point? (intersection:line-line line (segment->line seg))
        (if (segment:collinear-point-on? seg i)
            i
-           'no-intersection)
+		   #;(begin (pp seg)
+				  (pp i)
+				  (error "points-are-not-collinear!"))
+		   'no-intersection
+		   )
        i))
 
 ;;; Infinite line - infinite line interesection
@@ -672,18 +676,35 @@
 ;;; Are these points collinear and ordered (left-to-right or right-to-left)?
 ;;; TODO: Convert to pseqs!!
 
-(define (collinear-ordered-points? p q r)
+#;(define (collinear-ordered-points? p q r)
   (cond
    ((< (point-x p) (point-x q))
-    (not (< (point-x r) (point-x q))))
+    (> (point-x r) (point-x q)))
    ((< (point-x q) (point-x p))
-    (not (< (point-x q) (point-x r))))
+    (> (point-x q) (point-x r)))
    ((< (point-y p) (point-y q))
-    (not (< (point-y r) (point-y q))))
+    (> (point-y r) (point-y q)))
    ((< (point-y q) (point-y p))
-    (not (< (point-y q) (point-y r))))
-   (else
-    #t)))
+    (> (point-y q) (point-y r)))
+   (else #t)))
+
+(define (<e a b)
+  (< (+ a 0.01) b))
+
+(define (>e a b)
+  (> a (+ b 0.01)))
+
+(define (collinear-ordered-points? p q r)
+  (cond
+   ((<e (point-x p) (point-x q))
+    (>e (point-x r) (point-x q)))
+   ((<e (point-x q) (point-x p))
+    (>e (point-x q) (point-x r)))
+   ((<e (point-y p) (point-y q))
+    (>e (point-y r) (point-y q)))
+   ((<e (point-y q) (point-y p))
+    (>e (point-y q) (point-y r)))
+   (else #t)))
 
 ;;; Are these points collinear and strictly ordered?
 
