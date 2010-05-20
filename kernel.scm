@@ -17,10 +17,10 @@
 
 ;;; run-time checks
 
-(define-syntax check-arg
+(define-syntax assert
   (syntax-rules ()
-    ((_ predicate arg proc)
-     (check-arg-per-module "do" predicate arg proc))))
+    ((_ test proc)
+     (assert-aux "do" test proc))))
 
 ;-------------------------------------------------------------------------------
 ; Point 2d
@@ -123,7 +123,7 @@
 ;;; Segment's direction vector
 
 (define (segment->direction seg)
-  (check-arg segment? seg segment->direction)
+  (assert (segment? seg) segment->direction)
   (vect2:-vect2
     (segment-b seg)
     (segment-a seg)))
@@ -142,13 +142,13 @@
 ;;; Segment length
 
 (define (segment:length seg)
-  (check-arg segment? seg segment:length)
+  (assert (segment? seg) segment:length)
   (vect2:magnitude (segment->direction seg)))
 
 ;;; Reverse segment
 
 (define (segment:reverse seg)
-  (check-arg segment? seg segment:reverse)
+  (assert (segment? seg) segment:reverse)
   (make-segment (segment-b seg)
                 (segment-a seg)))
 
@@ -214,11 +214,10 @@
          ((=~ (point-y s1) (point-y s2))
           (/ (- (point-x p) (point-x s1)) (- (point-x s2) (point-x s1))))
          (else
-          (let ((c1 (/ (- (point-y p) (point-y s1)) (- (point-y s2) (point-y s1))))
-                (c2 (/ (- (point-x p) (point-x s1)) (- (point-x s2) (point-x s1)))))
-            (if (=~ c1 c2)
-                c1
-                (begin (pp c1) (pp c2) (error "THIS SHOULDN'T HAPPEN")))))))
+          (assert (=~ (/ (- (point-y p) (point-y s1)) (- (point-y s2) (point-y s1)))
+                      (/ (- (point-x p) (point-x s1)) (- (point-x s2) (point-x s1))))
+                  segment:point-relative-position)
+          (/ (- (point-y p) (point-y s1)) (- (point-y s2) (point-y s1))))))
       'not-collinear))
 
 ;;; Calculate the segment's mid point
