@@ -72,20 +72,20 @@
         (qx (point-x q))
         (qy (point-y q)))
     (cond
-     ((= qy py)
+     ((=~ qy py)
       (cond
        ((> qx px)
         (make-line 0.0 1.0 (- py)))
-       ((= qx px)
+       ((=~ qx px)
         'point)
         ;(make-line 0.0 0.0 0.0))
        (else
         (make-line 0.0 -1.0 py))))
-     ((= qx px)
+     ((=~ qx px)
       (cond
        ((> qy py)
         (make-line -1.0 0.0 px))
-       ((= qy py) 
+       ((=~ qy py) 
         'point)
         ;(make-line 0.0 0.0 0.0))
        (else
@@ -164,11 +164,11 @@
          (bx (point-x b))
          (by (point-y b)))
     (or (and
-          (= ax px)
-          (= ay py))
+          (=~ ax px)
+          (=~ ay py))
         (and
-          (= bx px)
-          (= by py)))))
+          (=~ bx px)
+          (=~ by py)))))
 
 ;;; Point collinear to segment?
 
@@ -209,13 +209,13 @@
       (let ((s1 (segment-a seg))
             (s2 (segment-b seg)))
         (cond
-         ((= (point-x s1) (point-x s2))
+         ((=~ (point-x s1) (point-x s2))
           (/ (- (point-y p) (point-y s1)) (- (point-y s2) (point-y s1))))
-         ((= (point-y s1) (point-y s2))
+         ((=~ (point-y s1) (point-y s2))
           (/ (- (point-x p) (point-x s1)) (- (point-x s2) (point-x s1))))
          (else
-          (assert (= (/ (- (point-y p) (point-y s1)) (- (point-y s2) (point-y s1)))
-                     (/ (- (point-x p) (point-x s1)) (- (point-x s2) (point-x s1))))
+          (assert (=~ (/ (- (point-y p) (point-y s1)) (- (point-y s2) (point-y s1)))
+                      (/ (- (point-x p) (point-x s1)) (- (point-x s2) (point-x s1))))
                   segment:point-relative-position)
           (/ (- (point-y p) (point-y s1)) (- (point-y s2) (point-y s1))))))
       'not-collinear))
@@ -285,11 +285,11 @@
          (bx (point-x b))
          (by (point-y b)))
     (or (and
-          (= ax px)
-          (= ay py))
+          (=~ ax px)
+          (=~ ay py))
         (and
-          (= bx px)
-          (= by py)))))
+          (=~ bx px)
+          (=~ by py)))))
 
 ;;; Are these pseq connected?
 
@@ -317,13 +317,13 @@
         (fb (first b))
         (lb (last b)))
     (cond ; target situation: ----->x---->>
-     ((vect2:= fa fb) ; case: <-----x---->>
+     ((vect2:=? fa fb) ; case: <-----x---->>
       (append-reverse a (cdr b)))
-     ((vect2:= fa lb) ; case: <-----x<<----
+     ((vect2:=? fa lb) ; case: <-----x<<----
       (append-reverse a (cdr (reverse b))))
-     ((vect2:= la fb) ; case: ----->x---->>
+     ((vect2:=? la fb) ; case: ----->x---->>
       (append a (cdr b)))
-     ((vect2:= la lb) ; case: ----->x<<----
+     ((vect2:=? la lb) ; case: ----->x<<----
       (append a (cdr (reverse b))))
      (else
       (pp a)
@@ -338,13 +338,13 @@
         (fb (first b))
         (lb (last b)))
     (cond ; target situation: ----->x---->>
-     ((vect2:= fa fb) ; case: <-----x---->>
+     ((vect2:=? fa fb) ; case: <-----x---->>
       (append a (reverse (cdr b))))
-     ((vect2:= fa lb) ; case: <-----x<<----
+     ((vect2:=? fa lb) ; case: <-----x<<----
       (append a (reverse (cdr (reverse b)))))
-     ((vect2:= la fb) ; case: ----->x---->>
+     ((vect2:=? la fb) ; case: ----->x---->>
       (append a (cdr b)))
-     ((vect2:= la lb) ; case: ----->x<<----
+     ((vect2:=? la lb) ; case: ----->x<<----
       (append a (reverse (cdr b))))
      (else
       (pp a)
@@ -463,11 +463,11 @@
 
 (define (pseq:tangent-in-relative plis rel)
   (let ((approx (pseq->segment plis))) ; TODO: handle pseqs properly
-                                        ;    (vect2:normalize
+    (vect2:normalize
       (segment->direction
         (make-segment
           (segment:relative-position->point approx rel)
-          (segment-b approx)))))
+          (segment-b approx))))))
 
 ;-------------------------------------------------------------------------------
 ; Rotation
@@ -571,8 +571,8 @@
                     (- (point-x a2) (point-x a1)))
                  (* (- (point-x b2) (point-x b1))
                     (- (point-y a2) (point-y a1))))))
-    (if (= u-b 0.0)
-        (if (or (= ua-t 0.0) (= ub-t 0.0))
+    (if (=~ u-b 0.0)
+        (if (or (=~ ua-t 0.0) (=~ ub-t 0.0))
             'coincident
           'parallel)
       (let ((ua (/ ua-t u-b))
@@ -610,9 +610,9 @@
   (aif i point? (intersection:line-line line (segment->line seg))
        (if (segment:collinear-point-on? seg i)
            i
-		   ;; (begin (pp seg)
-		   ;;      	  (pp i)
-		   ;;      	  (error "points-are-not-collinear!"))
+		   #;(begin (pp seg)
+				  (pp i)
+				  (error "points-are-not-collinear!"))
 		   'no-intersection
 		   )
        i))

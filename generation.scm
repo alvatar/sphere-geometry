@@ -5,7 +5,7 @@
 ;;; Geometry generation procedures
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(import math/algebra)
+(import math/exact-algebra)
 
 (import kernel)
 
