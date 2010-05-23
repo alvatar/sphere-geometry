@@ -260,9 +260,6 @@
 
 ;;; Length of a pseq
 (define (pseq:length pseq)
-					;(fold (lambda (s l) (+ l (segment:length s)))
-					;       0
-					;      (pseq->lsegments pseq)))
   (pair-fold
    (lambda (pair accum)
      (+
@@ -468,6 +465,11 @@
         (make-segment
           (segment:relative-position->point approx rel)
           (segment-b approx)))))
+
+;;; TODO
+
+(define (pseq:relative-position->point pseq r)
+  (segment:relative-position->point (pseq->segment pseq) r))
 
 ;-------------------------------------------------------------------------------
 ; Rotation
