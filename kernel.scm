@@ -14,6 +14,7 @@
 (import core/list)
 (import core/syntax)
 (import math/exact-algebra)
+(import math/inexact-algebra)
 
 ;;; run-time checks
 
@@ -141,9 +142,9 @@
 
 ;;; Segment length
 
-(define (segment:length seg)
-  (assert (segment? seg) segment:length)
-  (vect2:magnitude (segment->direction seg)))
+(define (segment:~length seg)
+  (assert (segment? seg) segment:~length)
+  (vect2:~magnitude (segment->direction seg)))
 
 ;;; Reverse segment
 
@@ -189,7 +190,7 @@
 ;;; Tell whether the segments are parallel
 
 (define (segment:parallel-segment? seg1 seg2)
-  (vect2:=?e
+  (vect2:=e
     (vect2:normalize (segment->direction seg1))
     (vect2:normalize (segment->direction seg2))
     0.01))
@@ -226,7 +227,7 @@
   (let ((a (segment-a seg))
         (b (segment-b seg)))
     (make-point (average (point-x a) (point-x b))
-                  (average (point-y a) (point-y b)))))
+                (average (point-y a) (point-y b)))))
 
 ;-------------------------------------------------------------------------------
 ; Point sequences
@@ -259,13 +260,13 @@
        pseq))
 
 ;;; Length of a pseq
-(define (pseq:length pseq)
+(define (pseq:~length pseq)
   (pair-fold
    (lambda (pair accum)
      (+
       (if (null? (cdr pair))
           0
-	  (segment:length (make-segment (car pair) (cadr pair)))) ; (* (car pair) (cadr pair)))
+	  (segment:~length (make-segment (car pair) (cadr pair)))) ; (* (car pair) (cadr pair)))
       accum))
    0
    pseq))
@@ -297,7 +298,7 @@
 ;;; Is the pseq closed (as a polygon)
 
 (define (pseq:closed? pseq)
-  (vect2:=? (first pseq) (last pseq)))
+  (vect2:= (first pseq) (last pseq)))
 
 ;;; Close a point-list (repeats first point in the last position)
 
@@ -433,7 +434,7 @@
 (define (pseq:common-point? plis1 plis2)
   (find
     (lambda (e)
-      (any (lambda (it) (vect2:=? it e)) plis1))
+      (any (lambda (it) (vect2:= it e)) plis1))
     plis2))
 
 ;;; Is point inside the polygon pseq?
