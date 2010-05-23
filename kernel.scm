@@ -79,7 +79,7 @@
         (make-line #e0 #e1 (- py)))
        ((= qx px)
         'point)
-        ;(make-line 0.0 0.0 0.0))
+        ;(make-line #e0 #e0 #e0))
        (else
         (make-line #e0 #e-1 py))))
      ((= qx px)
@@ -88,9 +88,9 @@
         (make-line #e-1 #e0 px))
        ((= qy py) 
         'point)
-        ;(make-line 0.0 0.0 0.0))
+        ;(make-line #e0 #e0 #e0))
        (else
-        (make-line #e1 #e1 (- px)))))
+        (make-line #e1 #e0 (- px)))))
      (else
       (let ((a (- py qy))
             (b (- qx px)))
@@ -613,11 +613,11 @@
   (aif i point? (intersection:line-line line (segment->line seg))
        (if (segment:collinear-point-on? seg i)
            i
-		   ;; (begin (pp seg)
-		   ;;      	  (pp i)
-		   ;;      	  (error "points-are-not-collinear!"))
-		   'no-intersection
-		   )
+           ;; (begin (pp seg)
+           ;;      	  (pp i)
+           ;;      	  (error "points-are-not-collinear!"))
+           'projection-intersection
+           )
        i))
 
 ;;; Infinite line - infinite line interesection
