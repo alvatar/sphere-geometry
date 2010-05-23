@@ -76,21 +76,21 @@
      ((= qy py)
       (cond
        ((> qx px)
-        (make-line 0.0 1.0 (- py)))
+        (make-line #e0 #e1 (- py)))
        ((= qx px)
         'point)
         ;(make-line 0.0 0.0 0.0))
        (else
-        (make-line 0.0 -1.0 py))))
+        (make-line #e0 #e-1 py))))
      ((= qx px)
       (cond
        ((> qy py)
-        (make-line -1.0 0.0 px))
+        (make-line #e-1 #e0 px))
        ((= qy py) 
         'point)
         ;(make-line 0.0 0.0 0.0))
        (else
-        (make-line 1.0 0.0 (- px)))))
+        (make-line #e1 #e1 (- px)))))
      (else
       (let ((a (- py qy))
             (b (- qx px)))
@@ -113,7 +113,7 @@
 ;;; Build a line from a ray
 
 (define (ray->line r) ; TODO
-  (make-line 0 0 0))
+  (make-line #e0 #e0 #e0))
 
 ;-------------------------------------------------------------------------------
 ; Segments
@@ -355,7 +355,7 @@
   (define (iter n sum plis-tail)
     (cond
      ((null? plis-tail)
-      (vect2:/scalar sum (exact->inexact n)))
+      (vect2:/scalar sum n))
      (else
       (iter
        (add1 n)
@@ -365,9 +365,9 @@
    ((null? plis)
     (error "Argument #1 should be a point list"))
    ((pseq:closed? plis)
-    (iter 0 (make-point 0.0 0.0) (cdr plis)))
+    (iter #e0 (make-point #e0 #e0) (cdr plis)))
    (else
-    (iter 0 (make-point 0.0 0.0) plis))))
+    (iter #e0 (make-point #e0 #e0) plis))))
 
 ;;; pseq right-most point
 
@@ -574,16 +574,16 @@
                     (- (point-x a2) (point-x a1)))
                  (* (- (point-x b2) (point-x b1))
                     (- (point-y a2) (point-y a1))))))
-    (if (= u-b 0.0)
-        (if (or (= ua-t 0.0) (= ub-t 0.0))
+    (if (= u-b #e0)
+        (if (or (= ua-t #e0) (= ub-t #e0))
             'coincident
           'parallel)
       (let ((ua (/ ua-t u-b))
             (ub (/ ub-t u-b)))
-        (if (and (<= 0 ua)
-                 (<= ua 1)
-                 (<= 0 ub)
-                 (<= ub 1))
+        (if (and (<= #e0 ua)
+                 (<= ua #e1)
+                 (<= #e0 ub)
+                 (<= ub #e1))
             (make-point (* (+ (point-x a1) ua)
                              (- (point-x a2) (point-x a1)))
                           (* (+ (point-y a1) ua)
@@ -629,12 +629,12 @@
         (l2a (line-a l2))
         (l2b (line-b l2))
         (l2c (line-c l2)))
-    (aif den ~zero? (- (* l1a l2b)
-                       (* l2a l1b))
-          (if (and (~zero? (- (* l1a l2c)
-                              (* l2a l1c)))
-                   (~zero? (- (* l1b l2c)
-                              (* l2b l1c))))
+    (aif den zero? (- (* l1a l2b)
+                      (* l2a l1b))
+          (if (and (zero? (- (* l1a l2c)
+                             (* l2a l1c)))
+                   (zero? (- (* l1b l2c)
+                             (* l2b l1c))))
               'line
             'no-intersection)
       (aif nom1 finite? (- (* l1b l2c)
@@ -689,35 +689,35 @@
 ;;; Are these points collinear and ordered (left-to-right or right-to-left)?
 ;;; TODO: Convert to pseqs!!
 
-;; (define (collinear-ordered-points? p q r)
-;;   (cond
-;;    ((< (point-x p) (point-x q))
-;;     (> (point-x r) (point-x q)))
-;;    ((< (point-x q) (point-x p))
-;;     (> (point-x q) (point-x r)))
-;;    ((< (point-y p) (point-y q))
-;;     (> (point-y r) (point-y q)))
-;;    ((< (point-y q) (point-y p))
-;;     (> (point-y q) (point-y r)))
-;;    (else #t)))
-
-(define (<e a b)
-  (< (+ a 0.01) b))
-
-(define (>e a b)
-  (> a (+ b 0.01)))
-
 (define (collinear-ordered-points? p q r)
   (cond
-   ((<e (point-x p) (point-x q))
-    (>e (point-x r) (point-x q)))
-   ((<e (point-x q) (point-x p))
-    (>e (point-x q) (point-x r)))
-   ((<e (point-y p) (point-y q))
-    (>e (point-y r) (point-y q)))
-   ((<e (point-y q) (point-y p))
-    (>e (point-y q) (point-y r)))
+   ((< (point-x p) (point-x q))
+    (> (point-x r) (point-x q)))
+   ((< (point-x q) (point-x p))
+    (> (point-x q) (point-x r)))
+   ((< (point-y p) (point-y q))
+    (> (point-y r) (point-y q)))
+   ((< (point-y q) (point-y p))
+    (> (point-y q) (point-y r)))
    (else #t)))
+
+;; (define (<e a b)
+;;   (< (+ a 0.01) b))
+
+;; (define (>e a b)
+;;   (> a (+ b 0.01)))
+
+;; (define (collinear-ordered-points? p q r)
+;;   (cond
+;;    ((<e (point-x p) (point-x q))
+;;     (>e (point-x r) (point-x q)))
+;;    ((<e (point-x q) (point-x p))
+;;     (>e (point-x q) (point-x r)))
+;;    ((<e (point-y p) (point-y q))
+;;     (>e (point-y r) (point-y q)))
+;;    ((<e (point-y q) (point-y p))
+;;     (>e (point-y q) (point-y r)))
+;;    (else #t)))
 
 ;;; Are these points collinear and strictly ordered?
 
