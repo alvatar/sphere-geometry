@@ -324,6 +324,7 @@
      ((vect2:= la lb) ; case: ----->x<<----
       (append a (cdr (reverse b))))
      (else
+      (display "******* pseq:append *******\n")
       (pp a)
       (pp b)
       (error "Point sequences cannot be connected")))))
@@ -345,6 +346,7 @@
      ((vect2:= la lb) ; case: ----->x<<----
       (append a (reverse (cdr b))))
      (else
+      (display "******* pseq:join *******\n")
       (pp a)
       (pp b)
       (error "Point sequences cannot be connected")))))
