@@ -10,11 +10,11 @@
 
 (import (std srfi/1))
 
-(import core/debug)
-(import core/list)
-(import core/syntax)
-(import math/exact-algebra)
-(import math/inexact-algebra)
+(import ../core/list)
+(import ../core/syntax)
+(import ../dev/debugging)
+(import ../math/exact-algebra)
+(import ../math/inexact-algebra)
 
 ;;; run-time checks
 
