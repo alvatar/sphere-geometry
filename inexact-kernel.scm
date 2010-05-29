@@ -236,13 +236,13 @@
 
 (define (pseq? plis)
   (and (list? plis)
-       (notnull? plis)
+       (not-null? plis)
        (every (lambda (p) (point? p)) plis)))
 
 ;;; Is pseq? (shallow version)
 
 (define (pseq?-shallow plis)
-  (and (notnull? plis)
+  (and (not-null? plis)
        (point? (car plis))))
 
 ;;; Picks the first and the last points of the pseq to build the segment
