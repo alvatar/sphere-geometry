@@ -651,7 +651,7 @@
 
 ;;; Calculate the bounding point of a pseq
 
-(define (pseq:bounding-box point-list)
+(define (pseq->bounding-box point-list)
   (let ((first (car point-list))
         (rest (cdr point-list)))
     (make-bounding-box

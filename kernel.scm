@@ -259,14 +259,34 @@
        (cdr pseq)
        pseq))
 
+;;; Calculate the bounding point of a pseq
+
+(define (pseq->bounding-box point-list)
+  (let ((first (car point-list))
+        (rest (cdr point-list)))
+    (make-bounding-box
+      (make-point (fold (lambda (point x) (min x (point-x point)))
+                        (point-x first)
+                        rest)
+                  (fold (lambda (point y) (min y (point-y point)))
+                        (point-y first)
+                        rest))
+      (make-point (fold (lambda (point x) (max x (point-x point)))
+                        (point-x first)
+                        rest)
+                  (fold (lambda (point y) (max y (point-y point)))
+                        (point-y first)
+                        rest)))))
+
 ;;; Length of a pseq
+
 (define (pseq:~length pseq)
   (pair-fold
    (lambda (pair accum)
      (+
       (if (null? (cdr pair))
           0
-	  (segment:~length (make-segment (car pair) (cadr pair)))) ; (* (car pair) (cadr pair)))
+	  (segment:~length (make-segment (car pair) (cadr pair))))
       accum))
    0
    pseq))
@@ -474,25 +494,45 @@
 (define (pseq:relative-position->point pseq r)
   (segment:relative-position->point (pseq->segment pseq) r))
 
+;;; Clip a pseq between the intersections of two lines
+
+(define (pseq:clip/lines pseq la lb)
+  (error "unimplemented"))
+
+;;; Clip a pseq between the intersections of two lines ensuring is done clockwise
+
+(define (pseq:clip/lines-clockwise pseq la lb)
+  (error "unimplemented"))
+
+;;; Clip a pseq between the intersections of two lines ensuring is done clockwise
+
+(define (pseq:clip/lines-counterclockwise pseq la lb)
+  (error "unimplemented"))
+
 ;-------------------------------------------------------------------------------
 ; Rotation
 ;-------------------------------------------------------------------------------
 
 ;;; Point rotation
 
-(define (rotation:point vec r-angle)
+(define (rotate.point vec r-angle)
   (make-point (- (* (point-x vec) (cos r-angle))
                  (* (point-y vec) (sin r-angle)))
               (+ (* (point-y vec) (cos r-angle))
                  (* (point-x vec) (sin r-angle)))))
 
-;;; Point rotation
+;;; Point rotation with a reference
 
-(define (rotation:point-w/reference ref p r-angle)
+(define (rotate.point-w/reference ref p r-angle)
   (vect2:+vect2 ref
-    (rotation:point
+    (rotate.point
       (vect2:-vect2 p ref)
       r-angle)))
+
+;;; Direction rotation
+
+(define (rotate.direction d)
+  (error "unimplemented"))
 
 ;-------------------------------------------------------------------------------
 ; Translation
@@ -500,7 +540,7 @@
 
 ;;; Point translation
 
-(define (translation:point p vec)
+(define (translate.point p vec)
   (vect2:+vect2 p vec))
 
 ;-------------------------------------------------------------------------------
@@ -509,13 +549,13 @@
 
 ;;; Calculate the distance between two points
 
-(define (distance:point-point a b)
+(define (distance.point-point a b)
   (sqrt (+ (square (- (point-x a) (point-x b)))
            (square (- (point-y a) (point-y b))))))
 
 ;;; Calculate the distance between point and segment
 
-(define (distance:point-segment p sg)
+(define (distance.point-segment p sg)
   (let* ((p1x (point-x (segment-a sg)))
          (p1y (point-y (segment-a sg)))
          (p2x (point-x (segment-b sg)))
@@ -541,7 +581,7 @@
 
 ;;; Calculate the distance between a point and a point list
 
-(define (distance:point-pseq p plis)
+(define (distance.point-pseq p plis)
   (cond
    ((or (null? plis) (null? (cdr plis)))
     +inf.0)
@@ -559,7 +599,7 @@
 
 ;;; Segment-segment intersection
 
-(define (intersection:segment-segment sg1 sg2)
+(define (intersection.segment-segment sg1 sg2)
   (let* ((a1 (car sg1))
          (a2 (cadr sg1))
          (b1 (car sg2))
@@ -594,7 +634,7 @@
 
 ;;; Segment-pseq intersection
 
-(define (intersection:segment-pseq seg pol)
+(define (intersection.segment-pseq seg pol)
   (define (append-next intersections pol-rest)
     (let ((inters (intersection:segment-segment seg (make-segment (car pol-rest) (cadr pol-rest)))))
       (if (or (null? pol-rest) (< (length pol-rest) 3))
@@ -611,7 +651,7 @@
 
 ;;; Infinite line - segment intersection
 
-(define (intersection:line-segment line seg)
+(define (intersection.line-segment line seg)
   (aif i point? (intersection:line-line line (segment->line seg))
        (if (segment:collinear-point-on? seg i)
            i
@@ -624,7 +664,7 @@
 
 ;;; Infinite line - infinite line interesection
 
-(define (intersection:line-line l1 l2)
+(define (intersection.line-line l1 l2)
   (let ((l1a (line-a l1))
         (l1b (line-b l1))
         (l1c (line-c l1))
@@ -653,25 +693,6 @@
 ;-------------------------------------------------------------------------------
 
 (define-structure bounding-box lefttop rightbottom)
-
-;;; Calculate the bounding point of a pseq
-
-(define (pseq:bounding-box point-list)
-  (let ((first (car point-list))
-        (rest (cdr point-list)))
-    (make-bounding-box
-      (make-point (fold (lambda (point x) (min x (point-x point)))
-                        (point-x first)
-                        rest)
-                  (fold (lambda (point y) (min y (point-y point)))
-                        (point-y first)
-                        rest))
-      (make-point (fold (lambda (point x) (max x (point-x point)))
-                        (point-x first)
-                        rest)
-                  (fold (lambda (point y) (max y (point-y point)))
-                        (point-y first)
-                        rest)))))
 
 ;;; Calculate the diagonal segment connecting the two extremes of the bb
 

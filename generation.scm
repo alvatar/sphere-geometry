@@ -20,7 +20,7 @@
       (if (pseq:point-inside? point-list p)
           p
         (try origin delta))))
-  (let* ((bounding-box (pseq:bounding-box point-list))
+  (let* ((bounding-box (pseq->bounding-box point-list))
          (bb-left-corner (bounding-box-lefttop bounding-box))
          (bb-right-corner (bounding-box-rightbottom bounding-box)))
     (try
