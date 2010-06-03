@@ -189,7 +189,7 @@
 
 ;;; Tell whether the segments are parallel
 
-(define (segment:parallel-segment? seg1 seg2)
+(define (segment:~parallel-segment? seg1 seg2)
   (vect2:=e
     (vect2:normalize (segment->direction seg1))
     (vect2:normalize (segment->direction seg2))
@@ -489,6 +489,16 @@
           (segment:relative-position->point approx rel)
           (segment-b approx)))))
 
+;;; Calculate the normalized tangent vector in a point-list given the relative position
+
+(define (pseq:~normalized-tangent-in-relative plis rel)
+  (let ((approx (pseq->segment plis))) ; TODO: handle pseqs properly
+    (vect2:~normalize
+      (segment->direction
+        (make-segment
+          (segment:relative-position->point approx rel)
+          (segment-b approx))))))
+
 ;;; TODO
 
 (define (pseq:relative-position->point pseq r)
@@ -544,18 +554,18 @@
   (vect2:+vect2 p vec))
 
 ;-------------------------------------------------------------------------------
-; Distance
+; Squared distances
 ;-------------------------------------------------------------------------------
 
 ;;; Calculate the distance between two points
 
-(define (distance.point-point a b)
-  (sqrt (+ (square (- (point-x a) (point-x b)))
-           (square (- (point-y a) (point-y b))))))
+(define (squareddistance.point-point a b)
+  (+ (square (- (point-x a) (point-x b)))
+     (square (- (point-y a) (point-y b)))))
 
 ;;; Calculate the distance between point and segment
 
-(define (distance.point-segment p sg)
+(define (squareddistance.point-segment p sg)
   (let* ((p1x (point-x (segment-a sg)))
          (p1y (point-y (segment-a sg)))
          (p2x (point-x (segment-b sg)))
@@ -577,19 +587,46 @@
            (y (+ p1y (* u sv)))
            (dx (- x px))
            (dy (- y py)))
-      (sqrt (+ (* dx dx) (* dy dy))))))
+      (+ (* dx dx) (* dy dy)))))
 
 ;;; Calculate the distance between a point and a point list
 
-(define (distance.point-pseq p plis)
+(define (squareddistance.point-pseq p plis)
   (cond
    ((or (null? plis) (null? (cdr plis)))
     +inf.0)
    (else
-    (min (distance:point-segment
+    (min (squareddistance.point-segment
            p
            (make-segment (car plis) (cadr plis)))
-         (distance:point-pseq
+         (squareddistance.point-pseq
+           p
+           (cdr plis))))))
+;-------------------------------------------------------------------------------
+; Distances
+;-------------------------------------------------------------------------------
+
+;;; Calculate the distance between two points
+
+(define (~distance.point-point a b)
+  (sqrt (squareddistance.point-point a b)))
+
+;;; Calculate the distance between point and segment
+
+(define (~distance.point-segment p sg)
+  (sqrt (squareddistance.point-segment p sg)))
+
+;;; Calculate the distance between a point and a point list
+
+(define (~distance.point-pseq p plis)
+  (cond
+   ((or (null? plis) (null? (cdr plis)))
+    +inf.0)
+   (else
+    (min (~distance.point-segment
+           p
+           (make-segment (car plis) (cadr plis)))
+         (~distance.point-pseq
            p
            (cdr plis))))))
 
@@ -754,5 +791,42 @@
     (< (point-y q) (point-y r)))
    ((< (point-y q) (point-y p))
     (< (point-y r) (point-y q)))
+   (else
+    #f)))
+
+
+;;; Are these points collinear and ordered (left-to-right or right-to-left)?
+;;; TODO
+
+(define (<e a b)
+  (< (+ a 0.01) b))
+
+(define (>e a b)
+  (> a (+ b 0.01)))
+
+(define (~collinear-ordered-points? p q r)
+  (cond
+   ((<e (point-x p) (point-x q))
+    (>e (point-x r) (point-x q)))
+   ((<e (point-x q) (point-x p))
+    (>e (point-x q) (point-x r)))
+   ((<e (point-y p) (point-y q))
+    (>e (point-y r) (point-y q)))
+   ((<e (point-y q) (point-y p))
+    (>e (point-y q) (point-y r)))
+   (else #t)))
+
+;;; Are these points collinear and strictly ordered?
+
+(define (~collinear-strictly-ordered-points? p q r)
+  (cond
+   ((<e (point-x p) (point-x q))
+    (<e (point-x q) (point-x r)))
+   ((<e (point-x q) (point-x p))
+    (<e (point-x r) (point-x q)))
+   ((<e (point-y p) (point-y q))
+    (<e (point-y q) (point-y r)))
+   ((<e (point-y q) (point-y p))
+    (<e (point-y r) (point-y q)))
    (else
     #f)))
