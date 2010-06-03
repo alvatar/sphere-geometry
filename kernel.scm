@@ -226,8 +226,8 @@
 (define (segment:mid-point seg)
   (let ((a (segment-a seg))
         (b (segment-b seg)))
-    (make-point (average (point-x a) (point-x b))
-                (average (point-y a) (point-y b)))))
+    (make-point (/ (+ (point-x a) (point-x b)) 2)
+                (/ (+ (point-y a) (point-y b)) 2))))
 
 ;-------------------------------------------------------------------------------
 ; Point sequences
