@@ -47,6 +47,12 @@
   (make-direction (direction-y dir)
                   (- (direction-x dir))))
 
+;;; Direction to angle
+
+(define (direction->angle-rad dir)
+  (angle (make-rectangular (direction-x dir)
+                           (direction-y dir))))
+
 ;-------------------------------------------------------------------------------
 ; Infinite lines 2d
 ;-------------------------------------------------------------------------------
@@ -741,6 +747,19 @@
 
 (define (bounding-box:size-segment bb)
   (segment->direction (bounding-box:diagonal-segment bb)))
+
+
+;;; Calculate left-bottom
+
+(define (bounding-box-leftbottom bb)
+  (make-point (point-x (bounding-box-lefttop bb))
+              (point-y (bounding-box-rightbottom bb))))
+
+;;; Calculate right-top
+
+(define (bounding-box-righttop bb)
+  (make-point (point-x (bounding-box-rightbottom bb))
+              (point-y (bounding-box-lefttop bb))))
 
 ;-------------------------------------------------------------------------------
 ; Predicates
