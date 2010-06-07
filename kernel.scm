@@ -331,7 +331,7 @@
 (define (pseq:close pseq)
   (if (pseq:closed? pseq)
       pseq
-      (snoc plis (car pseq))))
+      (snoc pseq (car pseq))))
 
 ;;; Append two point lists, appends always after (optimized for second one being shorter)
 
@@ -760,6 +760,15 @@
 (define (bounding-box-righttop bb)
   (make-point (point-x (bounding-box-rightbottom bb))
               (point-y (bounding-box-lefttop bb))))
+
+;;; Bounding box centroid
+
+(define (bounding-box:centroid bb)
+  (pseq:centroid (list
+                  (bounding-box-lefttop bb)
+                  (bounding-box-righttop bb)
+                  (bounding-box-rightbottom bb)
+                  (bounding-box-leftbottom bb))))
 
 ;-------------------------------------------------------------------------------
 ; Predicates
