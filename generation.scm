@@ -8,8 +8,10 @@
 (import (std srfi/1))
 (import ../core/syntax)
 (import ../core/functional)
+(import ../dev/debugging)
 (import ../math/exact-algebra)
 (import ../math/inexact-algebra)
+(import ../visualization)
 (import kernel)
 
 ;;; Return a random point that is inside a given pseq
@@ -20,10 +22,10 @@
          (make-point (random-real/range (point-x a) (point-x b))
                      (random-real/range (point-y a) (point-y b)))
          p (gen origin delta)))
-  (let ((bounding-box (pseq->bounding-box pseq)))
+  (let ((bounding-box (pseq->bbox pseq)))
     (gen
-     (bounding-box-lefttop bounding-box)
-     (bounding-box-rightbottom bounding-box))))
+     (bbox-lefttop bounding-box)
+     (bbox-rightbottom bounding-box))))
 
 ;;; Return a random point that is inside a given pseq
 
@@ -42,3 +44,33 @@
              (gen (add1 n) (cons p plis)))
          (gen n plis)))
   (gen 0 '()))
+
+;;; Generate regular point mesh
+
+(define (generate.point-mesh-centered bb wall-offset offset-x offset-y)
+  (let* ((obox (vect2+ (make-point wall-offset wall-offset) (bbox-lefttop bb)))
+         (o-x (vect2-x obox))
+         (o-y (vect2-y obox))
+         (ebox (vect2- (bbox-rightbottom bb) (make-point wall-offset wall-offset)))
+         (e-x (vect2-x ebox))
+         (e-y (vect2-y ebox))
+         (size (vect2- (bbox:size-segment bb) (vect2:*scalar (make-vect2 wall-offset wall-offset) 2)))
+         (size-x (vect2-x size))
+         (size-y (vect2-y size)))
+    (let ((start (make-point            ; center the mesh
+                  (+ o-x
+                     (/ (* (~decimal-part (/ size-x offset-x))
+                           offset-x)
+                        2))
+                  (+ o-y
+                     (/ (* (~decimal-part (/ size-y offset-y))
+                           offset-y)
+                        2)))))
+      (unfold (lambda (p) (> (point-y p) e-y))
+              values
+              (lambda (p) (if (> (+ offset-x (point-x p)) e-x)
+                         (make-point (point-x start)
+                                     (+ offset-y (point-y p)))
+                         (make-point (+ offset-x (point-x p))
+                                     (point-y p))))
+              start))))

@@ -267,10 +267,10 @@
 
 ;;; Calculate the bounding point of a pseq
 
-(define (pseq->bounding-box point-list)
+(define (pseq->bbox point-list)
   (let ((first (car point-list))
         (rest (cdr point-list)))
-    (make-bounding-box
+    (make-bbox
       (make-point (fold (lambda (point x) (min x (point-x point)))
                         (point-x first)
                         rest)
@@ -526,6 +526,44 @@
   (error "unimplemented"))
 
 ;-------------------------------------------------------------------------------
+; Bounding boxes
+;-------------------------------------------------------------------------------
+
+(define-structure bbox lefttop rightbottom)
+
+;;; Calculate the diagonal segment connecting the two extremes of the bb
+
+(define (bbox:diagonal-segment bb)
+  (make-segment (bbox-lefttop bb)
+                (bbox-rightbottom bb)))
+
+;;; Bounding box size segment
+
+(define (bbox:size-segment bb)
+  (segment->direction (bbox:diagonal-segment bb)))
+
+;;; Calculate left-bottom
+
+(define (bbox-leftbottom bb)
+  (make-point (point-x (bbox-lefttop bb))
+              (point-y (bbox-rightbottom bb))))
+
+;;; Calculate right-top
+
+(define (bbox-righttop bb)
+  (make-point (point-x (bbox-rightbottom bb))
+              (point-y (bbox-lefttop bb))))
+
+;;; Bounding box centroid
+
+(define (bbox:centroid bb)
+  (pseq:centroid (list
+                  (bbox-lefttop bb)
+                  (bbox-righttop bb)
+                  (bbox-rightbottom bb)
+                  (bbox-leftbottom bb))))
+
+;-------------------------------------------------------------------------------
 ; Rotation
 ;-------------------------------------------------------------------------------
 
@@ -730,45 +768,6 @@
                       (/ nom2 den))
           'no-intersection)
         'no-intersection))))
-
-;-------------------------------------------------------------------------------
-; Bounding boxes
-;-------------------------------------------------------------------------------
-
-(define-structure bounding-box lefttop rightbottom)
-
-;;; Calculate the diagonal segment connecting the two extremes of the bb
-
-(define (bounding-box:diagonal-segment bb)
-  (make-segment (bounding-box-lefttop bb)
-                (bounding-box-rightbottom bb)))
-
-;;; Bounding box size segment
-
-(define (bounding-box:size-segment bb)
-  (segment->direction (bounding-box:diagonal-segment bb)))
-
-
-;;; Calculate left-bottom
-
-(define (bounding-box-leftbottom bb)
-  (make-point (point-x (bounding-box-lefttop bb))
-              (point-y (bounding-box-rightbottom bb))))
-
-;;; Calculate right-top
-
-(define (bounding-box-righttop bb)
-  (make-point (point-x (bounding-box-rightbottom bb))
-              (point-y (bounding-box-lefttop bb))))
-
-;;; Bounding box centroid
-
-(define (bounding-box:centroid bb)
-  (pseq:centroid (list
-                  (bounding-box-lefttop bb)
-                  (bounding-box-righttop bb)
-                  (bounding-box-rightbottom bb)
-                  (bounding-box-leftbottom bb))))
 
 ;-------------------------------------------------------------------------------
 ; Predicates
