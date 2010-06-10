@@ -7,8 +7,7 @@
 
 (declare (standard-bindings)
          (extended-bindings)
-         (block)
-         (not safe))
+         (block))
 (compile-options force-compile: #t)
 
 (import (std srfi/1))
@@ -739,11 +738,7 @@
   (aif i point? (intersection.line-line line (segment->line seg))
        (if (segment:collinear-point-on? seg i)
            i
-           ;; (begin (pp seg)
-           ;;      	  (pp i)
-           ;;      	  (error "points-are-not-collinear!"))
-           'projection-intersection
-           )
+           'projection-intersection)
        i))
 
 ;;; Infinite line - infinite line interesection
