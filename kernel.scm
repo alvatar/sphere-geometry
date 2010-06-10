@@ -5,8 +5,11 @@
 ;;; Geometrical operations
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;(declare (standard-bindings)(extended-bindings)(block)(not safe))
-;(compile-options force-compile: #t)
+(declare (standard-bindings)
+         (extended-bindings)
+         (block)
+         (not safe))
+(compile-options force-compile: #t)
 
 (import (std srfi/1))
 
@@ -196,9 +199,9 @@
 ;;; Tell whether the segments are parallel
 
 (define (segment:~parallel-segment? seg1 seg2)
-  (vect2:=e
-    (vect2:normalize (segment->direction seg1))
-    (vect2:normalize (segment->direction seg2))
+  (vect2:~=e
+    (vect2:~normalize (segment->direction seg1))
+    (vect2:~normalize (segment->direction seg2))
     0.01))
 
 ;;; Calculate absolute point given segment and percent
@@ -223,7 +226,7 @@
          (else
           (assert (= (/ (- (point-y p) (point-y s1)) (- (point-y s2) (point-y s1)))
                      (/ (- (point-x p) (point-x s1)) (- (point-x s2) (point-x s1))))
-                  segment:point-relative-position)
+                  segment:point->relative-position)
           (/ (- (point-y p) (point-y s1)) (- (point-y s2) (point-y s1))))))
       'not-collinear))
 
@@ -717,7 +720,7 @@
 
 (define (intersection.segment-pseq seg pol)
   (define (append-next intersections pol-rest)
-    (let ((inters (intersection:segment-segment seg (make-segment (car pol-rest) (cadr pol-rest)))))
+    (let ((inters (intersection.segment-segment seg (make-segment (car pol-rest) (cadr pol-rest)))))
       (if (or (null? pol-rest) (< (length pol-rest) 3))
           (append intersections (list inters))
         (if (point? inters)
@@ -727,13 +730,13 @@
 
 ;;; Segment-pseq (closed pseq) intersection
 
-;(define (intersection:segment-pseq seg plis)
- ; (intersection:segment-pseq seg (pseq:close plis)))
+;(define (intersection.segment-pseq seg plis)
+ ; (intersection.segment-pseq seg (pseq:close plis)))
 
 ;;; Infinite line - segment intersection
 
 (define (intersection.line-segment line seg)
-  (aif i point? (intersection:line-line line (segment->line seg))
+  (aif i point? (intersection.line-line line (segment->line seg))
        (if (segment:collinear-point-on? seg i)
            i
            ;; (begin (pp seg)
