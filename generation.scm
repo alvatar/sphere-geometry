@@ -14,6 +14,10 @@
 (import ../visualization)
 (import kernel)
 
+;-------------------------------------------------------------------------------
+; Point generation
+;-------------------------------------------------------------------------------
+
 ;;; Return a random point that is inside a given pseq
 
 (define (generate.random-point-inside pseq)
@@ -74,3 +78,12 @@
                          (make-point (+ offset-x (point-x p))
                                      (point-y p))))
               start))))
+
+;-------------------------------------------------------------------------------
+; Line generation
+;-------------------------------------------------------------------------------
+
+;;; Generates 2 values: the two parallels to the given one at the given distance
+
+(define (generate.parallels-at-distance line distance)
+  (error "unimplemented"))
