@@ -228,9 +228,9 @@
 
 (define (segment:relative-position->point seg rel)
   (let ((vec (segment->direction seg))
-        (O (segment-a seg)))
-    (make-point (+ (point-x O) (* (point-x vec) rel))
-                (+ (point-y O) (* (point-y vec) rel)))))
+        (o (segment-a seg)))
+    (make-point (+ (point-x o) (* (point-x vec) rel))
+                (+ (point-y o) (* (point-y vec) rel)))))
 
 ;;; Calculate relative position given a point collinear and on the segment
 
@@ -628,12 +628,9 @@
 ;;; Line translation
 
 (define (translate.line line vec)
-  (point+direction->line (translate.point
-                          (line:point line 0)
-                          vec)
-                         (translate.direction
-                          (line->direction line)
-                          vec)))
+  (point+direction->line (translate.point (line:point line 0)
+                                          vec)
+                         (line->direction line)))
 
 ;-------------------------------------------------------------------------------
 ; Squared distances
