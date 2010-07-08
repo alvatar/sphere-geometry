@@ -20,7 +20,7 @@
 
 ;;; Return a random point that is inside a given pseq
 
-(define (generate.random-point-inside pseq)
+(define (~generate.random-point-inside pseq)
   (define (gen a b)
     (aif p (curry pseq:point-inside? pseq)  
          (make-point (random-real/range (point-x a) (point-x b))
@@ -33,7 +33,7 @@
 
 ;;; Return a random point that is inside a given pseq
 
-(define (generate.random-points/separation&boundaries N pseq p-dist b-dist)
+(define (~generate.random-points/separation&boundaries N pseq p-dist b-dist)
                                         ; TODO: OPTIMIZE, A way would be dividing the space
   (define (respects-distances? p plis)
     (every (lambda (p-in-plis) (< p-dist (~distance.point-point p p-in-plis))) plis))
@@ -51,7 +51,7 @@
 
 ;;; Generate regular point mesh
 
-(define (generate.point-mesh-centered bb wall-offset offset-x offset-y)
+(define (~generate.point-mesh-centered bb wall-offset offset-x offset-y)
   (let* ((obox (vect2+ (make-point wall-offset wall-offset) (bbox-lefttop bb)))
          (o-x (vect2-x obox))
          (o-y (vect2-y obox))
@@ -85,5 +85,10 @@
 
 ;;; Generates 2 values: the two parallels to the given one at the given distance
 
-(define (generate.parallels-at-distance line distance)
-  (error "unimplemented generate.parallels"))
+(define (~generate.parallels-at-distance line distance)
+  (let ((perp (vect2:*scalar
+               (vect2:~normalize
+                (direction:perpendicular (line->direction line)))
+               distance)))
+    (values (translate.line line perp)
+            (translate.line line (vect2:symmetric perp)))))

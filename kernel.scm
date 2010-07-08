@@ -113,12 +113,6 @@
                    b
                    (- (+ (* px a)
                          (* py b)))))))))
-
-;;; Get line direction
-
-(define (line->direction line)
-  (make-direction (line-b line) (- (line-a line))))
-
 ;;; Get point in line
 
 (define (line:point line i)
@@ -132,6 +126,17 @@
         (make-point (+ 1 (* i b))
                     (- (/ (- (- a) c) b)
                        (* i a))))))
+
+;;; Convert line into direction
+
+(define (line->direction line)
+  (make-direction (line-b line) (- (line-a line))))
+
+;;; Convert line into segment
+
+(define (line->segment line from to)
+  (make-segment (line:point line from)
+                (line:point line to)))
 
 ;-------------------------------------------------------------------------------
 ; Ray (semi-infinite line) 2d
@@ -528,10 +533,11 @@
           (segment:relative-position->point approx rel)
           (segment-b approx))))))
 
-;;; TODO
+;;; Get a point from a relative position in a pseq
 
 (define (pseq:relative-position->point pseq r)
-  (segment:relative-position->point (pseq->segment pseq) r))
+  (segment:relative-position->point (pseq->segment pseq)
+                                    r)) ; TODO: consider general case
 
 ;;; Clip a pseq between the intersections of two lines
 
@@ -620,11 +626,6 @@
 (define (translate.point p vec)
   (vect2:+vect2 p vec))
 
-;;; Direction translation
-
-(define (translate.direction dir vec)
-  (error "unimplemented"))
-
 ;;; Line translation
 
 (define (translate.line line vec)
@@ -633,7 +634,7 @@
                          (line->direction line)))
 
 ;-------------------------------------------------------------------------------
-; Squared distances
+; Distances/squared distances
 ;-------------------------------------------------------------------------------
 
 ;;; Calculate the distance between two points
@@ -681,9 +682,6 @@
          (squareddistance.point-pseq
            p
            (cdr plis))))))
-;-------------------------------------------------------------------------------
-; Distances
-;-------------------------------------------------------------------------------
 
 ;;; Calculate the distance between two points
 
@@ -698,16 +696,7 @@
 ;;; Calculate the distance between a point and a point list
 
 (define (~distance.point-pseq p plis)
-  (cond
-   ((or (null? plis) (null? (cdr plis)))
-    +inf.0)
-   (else
-    (min (~distance.point-segment
-           p
-           (make-segment (car plis) (cadr plis)))
-         (~distance.point-pseq
-           p
-           (cdr plis))))))
+  (sqrt (squareddistance.point-pseq p plis)))
 
 ;-------------------------------------------------------------------------------
 ; Intersections
@@ -752,7 +741,9 @@
 
 (define (intersection.segment-pseq seg pol)
   (define (append-next intersections pol-rest)
-    (let ((inters (intersection.segment-segment seg (make-segment (car pol-rest) (cadr pol-rest)))))
+    (let ((inters (intersection.segment-segment seg
+                                                (make-segment (car pol-rest)
+                                                              (cadr pol-rest)))))
       (if (or (null? pol-rest) (< (length pol-rest) 3))
           (append intersections (list inters))
         (if (point? inters)
