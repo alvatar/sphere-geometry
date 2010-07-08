@@ -61,6 +61,13 @@
 
 (define-structure line a b c)
 
+;;; Equality
+
+(define (line:= la lb)
+  (and (= (line-a la) (line-a lb))
+       (= (line-b la) (line-b lb))
+       (= (line-c la) (line-c lb))))
+
 ;;; Build a line from a point and a direction vector
 
 (define (point+direction->line p dir)
@@ -111,6 +118,20 @@
 
 (define (line->direction line)
   (make-direction (line-b line) (- (line-a line))))
+
+;;; Get point in line
+
+(define (line:point line i)
+  (let ((a (line-a line))
+        (b (line-b line))
+        (c (line-c line)))
+    (if (zero? b)
+        (make-point (+ (/ (- (- b) c) a)
+                       (* i b))
+                    (- 1 (* i a)))
+        (make-point (+ 1 (* i b))
+                    (- (/ (- (- a) c) b)
+                       (* i a))))))
 
 ;-------------------------------------------------------------------------------
 ; Ray (semi-infinite line) 2d
@@ -598,6 +619,21 @@
 
 (define (translate.point p vec)
   (vect2:+vect2 p vec))
+
+;;; Direction translation
+
+(define (translate.direction dir vec)
+  (error "unimplemented"))
+
+;;; Line translation
+
+(define (translate.line line vec)
+  (point+direction->line (translate.point
+                          (line:point line 0)
+                          vec)
+                         (translate.direction
+                          (line->direction line)
+                          vec)))
 
 ;-------------------------------------------------------------------------------
 ; Squared distances

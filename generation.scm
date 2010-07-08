@@ -86,4 +86,4 @@
 ;;; Generates 2 values: the two parallels to the given one at the given distance
 
 (define (generate.parallels-at-distance line distance)
-  (error "unimplemented"))
+  (error "unimplemented generate.parallels"))
