@@ -15,7 +15,7 @@
 (import kernel)
 
 ;-------------------------------------------------------------------------------
-; Point generation
+; Point mesh generation
 ;-------------------------------------------------------------------------------
 
 ;;; Return a random point that is inside a given pseq
@@ -78,6 +78,15 @@
                          (make-point (+ offset-x (point-x p))
                                      (point-y p))))
               start))))
+
+;-------------------------------------------------------------------------------
+; Point generation
+;-------------------------------------------------------------------------------
+
+;;; Random point between two points
+
+(define (~generate.random-point/two-points pa pb)
+  (make-point 40.0 40.0))
 
 ;-------------------------------------------------------------------------------
 ; Line generation
