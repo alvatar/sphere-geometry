@@ -86,7 +86,7 @@
 ;;; Random point between two points
 
 (define (~generate.random-point/two-points pa pb)
-  (make-point 40.0 40.0))
+  (make-point 10.0 10.0))
 
 ;-------------------------------------------------------------------------------
 ; Line generation
