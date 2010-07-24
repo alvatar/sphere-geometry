@@ -34,6 +34,11 @@
 (define point-x vect2-x)
 (define point-y vect2-y)
 
+;;; Make a direction from 2 points
+
+(define (point+point->direction p1 p2)
+  (vect2:-vect2 p2 p1))
+
 ;-------------------------------------------------------------------------------
 ; Direction 2d
 ;-------------------------------------------------------------------------------
@@ -249,6 +254,9 @@
          ((= (point-y s1) (point-y s2))
           (/ (- (point-x p) (point-x s1)) (- (point-x s2) (point-x s1))))
          (else
+          (pp p)
+          (pp s1)
+          (pp s2)
           (assert (= (/ (- (point-y p) (point-y s1)) (- (point-y s2) (point-y s1)))
                      (/ (- (point-x p) (point-x s1)) (- (point-x s2) (point-x s1))))
                   segment:point->relative-position)

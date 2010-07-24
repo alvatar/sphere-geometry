@@ -15,6 +15,33 @@
 (import kernel)
 
 ;-------------------------------------------------------------------------------
+; Direction generation
+;-------------------------------------------------------------------------------
+
+;;; Generate a random direction
+
+(define (~generate.random-direction)
+  (make-direction (random-real)
+                  (random-real)))
+
+;-------------------------------------------------------------------------------
+; Point generation
+;-------------------------------------------------------------------------------
+
+;;; Point between two points
+
+(define (generate.point/two-points pa pb alpha)
+  (vect2+
+   pa
+   (vect2:*scalar (point+point->direction pa pb)
+                  alpha)))
+
+;;; Random point between two points
+
+(define (generate.random-point/two-points pa pb)
+  (generate.point/two-points pa pb (random-exact)))
+
+;-------------------------------------------------------------------------------
 ; Point mesh generation
 ;-------------------------------------------------------------------------------
 
@@ -51,14 +78,14 @@
 
 ;;; Generate regular point mesh
 
-(define (~generate.point-mesh-centered bb wall-offset offset-x offset-y)
-  (let* ((obox (vect2+ (make-point wall-offset wall-offset) (bbox-lefttop bb)))
+(define (~?generate.point-mesh-centered bb limits-offset offset-x offset-y #!optional point-modifier)
+  (let* ((obox (vect2+ (make-point limits-offset limits-offset) (bbox-lefttop bb)))
          (o-x (vect2-x obox))
          (o-y (vect2-y obox))
-         (ebox (vect2- (bbox-rightbottom bb) (make-point wall-offset wall-offset)))
+         (ebox (vect2- (bbox-rightbottom bb) (make-point limits-offset limits-offset)))
          (e-x (vect2-x ebox))
          (e-y (vect2-y ebox))
-         (size (vect2- (bbox:size-segment bb) (vect2:*scalar (make-vect2 wall-offset wall-offset) 2)))
+         (size (vect2- (bbox:size-segment bb) (vect2:*scalar (make-vect2 limits-offset limits-offset) 2)))
          (size-x (vect2-x size))
          (size-y (vect2-y size)))
     (let ((start (make-point            ; center the mesh
@@ -69,24 +96,16 @@
                   (+ o-y
                      (/ (* (~decimal-part (/ size-y offset-y))
                            offset-y)
-                        2)))))
+                        2))))
+          (modifier (if point-modifier point-modifier (lambda (p) p))))
       (unfold (lambda (p) (> (point-y p) e-y))
               values
               (lambda (p) (if (> (+ offset-x (point-x p)) e-x)
-                         (make-point (point-x start)
-                                     (+ offset-y (point-y p)))
-                         (make-point (+ offset-x (point-x p))
-                                     (point-y p))))
+                         (modifier (make-point (point-x start)
+                                               (+ offset-y (point-y p))))
+                         (modifier (make-point (+ offset-x (point-x p))
+                                               (point-y p)))))
               start))))
-
-;-------------------------------------------------------------------------------
-; Point generation
-;-------------------------------------------------------------------------------
-
-;;; Random point between two points
-
-(define (~generate.random-point/two-points pa pb)
-  (make-point 10.0 10.0))
 
 ;-------------------------------------------------------------------------------
 ; Line generation
@@ -94,10 +113,10 @@
 
 ;;; Generates 2 values: the two parallels to the given one at the given distance
 
-(define (~generate.parallels-at-distance line distance)
+(define (generate.parallels-at-distance line distance)
   (let ((perp (vect2:*scalar
-               (vect2:~normalize
-                (direction:perpendicular (line->direction line)))
-               distance)))
+               (vect2:inexact->exact (vect2:~normalize
+                                      (direction:perpendicular (line->direction line))))
+               (inexact->exact distance))))
     (values (translate.line line perp)
             (translate.line line (vect2:symmetric perp)))))
