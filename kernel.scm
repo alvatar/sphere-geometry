@@ -8,7 +8,7 @@
 (declare (standard-bindings)
          (extended-bindings)
          (block))
-(compile-options force-compile: #t)
+;(compile-options force-compile: #t)
 
 (import (std srfi/1))
 
@@ -19,7 +19,7 @@
 (import ../math/inexact-algebra)
 
 ;;; run-time checks
-
+;;; TODO: change for accept and activation
 (define-syntax assert
   (syntax-rules ()
     ((_ test proc)
@@ -433,6 +433,27 @@
    (else
     (iter #e0 (make-point #e0 #e0) plis))))
 
+;;; pseq area
+;;; http://www.mathsisfun.com/geometry/area-irregular-polygons.html
+;;; http://mathworld.wolfram.com/PolygonArea.html (this one is implemented)
+;;; 1/2 * / | x1 x2 | + | x2 x3 | + ... + | xn x1 | \
+;;;       \ | y1 y2 |   | y2 y3 |         | yn y1 | /
+
+(define (pseq:area pseq)
+  (%accept (pseq:closed? pseq) "pseq must be closed to calculate area")
+  (abs
+   (* 1/2
+      (pair-fold (lambda (pair accum)
+                   (if (null? (cdr pair))
+                       accum
+                       (+ accum
+                          (let ((a (car pair))
+                                (b (cadr pair)))
+                            (- (* (point-x a) (point-y b))
+                               (* (point-x b) (point-y a)))))))
+                 0
+                 pseq))))
+
 ;;; pseq right-most point
 
 (define (pseq:extreme-right pseq)
@@ -502,8 +523,8 @@
     plis2))
 
 ;;; Is point inside the polygon pseq?
+;;; http://www.ecse.rpi.edu/Homepages/wrf/Research/Short_Notes/pnpoly.html
 
-;; http://www.ecse.rpi.edu/Homepages/wrf/Research/Short_Notes/pnpoly.html
 (define (pseq:point-inside? point-list p)
   (define (iter c a-points b-points)
     (cond
