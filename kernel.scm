@@ -8,7 +8,7 @@
 (declare (standard-bindings)
          (extended-bindings)
          (block))
-;(compile-options force-compile: #t)
+(compile-options force-compile: #t)
 
 (import (std srfi/1))
 
@@ -18,12 +18,7 @@
 (import ../math/exact-algebra)
 (import ../math/inexact-algebra)
 
-;;; run-time checks
-;;; TODO: change for accept and activation
-(define-syntax assert
-  (syntax-rules ()
-    ((_ test proc)
-     (assert-aux "do" test proc))))
+(%activate-checks)
 
 ;-------------------------------------------------------------------------------
 ; Point 2d
@@ -163,7 +158,7 @@
 ;;; Segment's direction vector
 
 (define (segment->direction seg)
-  (assert (segment? seg) segment->direction)
+  (%accept (segment? seg))
   (vect2:-vect2
     (segment-b seg)
     (segment-a seg)))
@@ -182,13 +177,13 @@
 ;;; Segment length
 
 (define (segment:~length seg)
-  (assert (segment? seg) segment:~length)
+;  (assert (segment? seg) segment:~length)
   (vect2:~magnitude (segment->direction seg)))
 
 ;;; Reverse segment
 
 (define (segment:reverse seg)
-  (assert (segment? seg) segment:reverse)
+ ; (assert (segment? seg) segment:reverse)
   (make-segment (segment-b seg)
                 (segment-a seg)))
 
@@ -254,12 +249,9 @@
          ((= (point-y s1) (point-y s2))
           (/ (- (point-x p) (point-x s1)) (- (point-x s2) (point-x s1))))
          (else
-          (pp p)
-          (pp s1)
-          (pp s2)
-          (assert (= (/ (- (point-y p) (point-y s1)) (- (point-y s2) (point-y s1)))
-                     (/ (- (point-x p) (point-x s1)) (- (point-x s2) (point-x s1))))
-                  segment:point->relative-position)
+          (%accept "Incoherent points and/or segment data" ; TODO: find reasons
+                   (= (/ (- (point-y p) (point-y s1)) (- (point-y s2) (point-y s1)))
+                      (/ (- (point-x p) (point-x s1)) (- (point-x s2) (point-x s1)))))
           (/ (- (point-y p) (point-y s1)) (- (point-y s2) (point-y s1))))))
       'not-collinear))
 
