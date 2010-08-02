@@ -8,7 +8,7 @@
 (import (std srfi/1))
 (import ../core/syntax)
 (import ../core/functional)
-(import ../dev/debugging)
+(import ../core/debugging)
 (import ../math/exact-algebra)
 (import ../math/inexact-algebra)
 (import ../visualization)

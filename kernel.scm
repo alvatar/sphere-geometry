@@ -14,7 +14,7 @@
 
 (import ../core/list)
 (import ../core/syntax)
-(import ../dev/debugging)
+(import ../core/debugging)
 (import ../math/exact-algebra)
 (import ../math/inexact-algebra)
 
