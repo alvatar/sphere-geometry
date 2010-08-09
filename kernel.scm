@@ -49,6 +49,12 @@
   (make-direction (direction-y dir)
                   (- (direction-x dir))))
 
+;;; Reverse direction
+
+(define (direction:reverse dir)
+  (make-direction (- (direction-x dir))
+                  (- (direction-y dir))))
+
 ;;; Direction to angle
 
 (define (direction->angle-rad dir)

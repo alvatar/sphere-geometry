@@ -52,7 +52,7 @@
     (aif p (curry pseq:point-inside? pseq)  
          (make-point (random-real/range (point-x a) (point-x b))
                      (random-real/range (point-y a) (point-y b)))
-         p (gen origin delta)))
+         p (gen a b)))
   (let ((bounding-box (pseq->bbox pseq)))
     (gen
      (bbox-lefttop bounding-box)
