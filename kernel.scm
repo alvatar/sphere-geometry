@@ -229,7 +229,7 @@
 
 ;;; Tell whether the segments are parallel
 
-(define (segment:~parallel-segment? seg1 seg2)
+(define (segment:parallel-segment? seg1 seg2)
   (vect2:~=e
     (vect2:~normalize (segment->direction seg1))
     (vect2:~normalize (segment->direction seg2))
@@ -354,6 +354,12 @@
 (define (pseq:connected-pseq? p1 p2)
   (or (pseq:is-end-point? p2 (first p1))
       (pseq:is-end-point? p2 (last p1))))
+
+;;; Are these pseq completely parallel?
+
+(define (pseq:parallel-pseq? p1 p2)
+  (segment:parallel-segment? (pseq->segment p1) ; TODO: obiviosuly needs generalization
+                             (pseq->segment p2)))
 
 ;;; Is the pseq closed (as a polygon)
 

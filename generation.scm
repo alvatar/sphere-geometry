@@ -18,11 +18,29 @@
 ; Direction generation
 ;-------------------------------------------------------------------------------
 
-;;; Generate a random direction
+;;; Generate inexact random direction
 
 (define (~generate.random-direction)
   (make-direction (random-real)
                   (random-real)))
+
+;;; Generate exact random direction
+
+(define (generate.random-direction)
+  (make-direction (inexact->exact (random-real))
+                  (inexact->exact (random-real))))
+
+;;; Generate inexact random point
+
+(define (~generate.random-point)
+  (make-point (random-real)
+              (random-real)))
+
+;;; Generate exact random point
+
+(define (generate.random-point)
+  (make-point (inexact->exact (random-real))
+              (inexact->exact (random-real))))
 
 ;-------------------------------------------------------------------------------
 ; Point generation
