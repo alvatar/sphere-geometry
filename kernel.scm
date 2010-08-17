@@ -716,6 +716,18 @@
            p
            (cdr plis))))))
 
+;;; Calculate the minimum squared distance between two pseqs, considering only end points
+
+(define (squareddistance.pseq-pseq/endpoints ps1 ps2)
+  (let ((ps1-f (first ps1))
+        (ps1-l (last ps1))
+        (ps2-f (first ps2))
+        (ps2-l (last ps2)))
+    (min (squareddistance.point-point ps1-f ps2-f)
+         (squareddistance.point-point ps1-f ps2-l)
+         (squareddistance.point-point ps1-l ps2-f)
+         (squareddistance.point-point ps1-l ps2-l))))
+
 ;;; Calculate the distance between two points
 
 (define (~distance.point-point a b)
@@ -730,6 +742,11 @@
 
 (define (~distance.point-pseq p plis)
   (sqrt (squareddistance.point-pseq p plis)))
+
+;;; Calculate the minimum distance between two pseqs, considering only end points
+
+(define (~distance.pseq-pseq/endpoints ps1 ps2)
+  (sqrt (squareddistance.pseq-pseq/endpoints ps1 ps2)))
 
 ;-------------------------------------------------------------------------------
 ; Intersections
