@@ -929,3 +929,22 @@
     (<e (point-y r) (point-y q)))
    (else
     #f)))
+
+;-------------------------------------------------------------------------------
+; Geometric calculations
+;-------------------------------------------------------------------------------
+
+;;; Direction of the line passing through two points
+
+(define (point+point->direction p1 p2)
+  (vect2:-vect2 p2 p1))
+
+;;; Direction of the line passing through a point and perpendicular to a line
+
+(define (point+line-perpendicular->direction p l)
+  (error "unimplemented"))
+
+;;; Direction of the line passing through a point and perpendicular to a pseq
+
+(define (point+pseq-perpendicular->direction p l)
+  (error "unimplemented"))
