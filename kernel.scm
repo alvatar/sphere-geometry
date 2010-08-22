@@ -2,21 +2,20 @@
 ;;; Licensed under the GPLv3 license, see LICENSE file for full description.
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Geometrical operations
+;;; Geometric kernel
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(declare (standard-bindings)
-         (extended-bindings)
-         (block))
-(compile-options force-compile: #t)
+;; (declare (standard-bindings)
+;;          (extended-bindings)
+;;          (block))
+;; (compile-options force-compile: #t)
 
-(import (std srfi/1))
-
-(import ../core/list)
-(import ../core/syntax)
-(import ../core/debugging)
-(import ../math/exact-algebra)
-(import ../math/inexact-algebra)
+(import (std srfi/1)
+        ../core/list
+        ../core/syntax
+        ../core/debugging
+        ../math/exact-algebra
+        ../math/inexact-algebra)
 
 (%activate-checks)
 
@@ -28,11 +27,6 @@
 (define point? vect2?)
 (define point-x vect2-x)
 (define point-y vect2-y)
-
-;;; Make a direction from 2 points
-
-(define (point+point->direction p1 p2)
-  (vect2:-vect2 p2 p1))
 
 ;-------------------------------------------------------------------------------
 ; Direction 2d
@@ -57,7 +51,7 @@
 
 ;;; Direction to angle
 
-(define (direction->angle-rad dir)
+(define (direction:angle-rad dir)
   (angle (make-rectangular (direction-x dir)
                            (direction-y dir))))
 
@@ -74,51 +68,6 @@
        (= (line-b la) (line-b lb))
        (= (line-c la) (line-c lb))))
 
-;;; Build a line from a point and a direction vector
-
-(define (point+direction->line p dir)
-  (let ((dx (direction-x dir))
-        (dy (direction-y dir)))
-    (make-line (- dy)
-               dx
-               (- (* (point-x p)
-                     dy)
-                  (* (point-y p)
-                     dx)))))
-
-;;; Build a line from two points
-
-(define (point+point->line p q)
-  (let ((px (point-x p))
-        (py (point-y p))
-        (qx (point-x q))
-        (qy (point-y q)))
-    (cond
-     ((= qy py)
-      (cond
-       ((> qx px)
-        (make-line #e0 #e1 (- py)))
-       ((= qx px)
-        'point)
-        ;(make-line #e0 #e0 #e0))
-       (else
-        (make-line #e0 #e-1 py))))
-     ((= qx px)
-      (cond
-       ((> qy py)
-        (make-line #e-1 #e0 px))
-       ((= qy py) 
-        'point)
-        ;(make-line #e0 #e0 #e0))
-       (else
-        (make-line #e1 #e0 (- px)))))
-     (else
-      (let ((a (- py qy))
-            (b (- qx px)))
-        (make-line a
-                   b
-                   (- (+ (* px a)
-                         (* py b)))))))))
 ;;; Get point in line
 
 (define (line:point line i)
@@ -133,52 +82,17 @@
                     (- (/ (- (- a) c) b)
                        (* i a))))))
 
-;;; Convert line into direction
-
-(define (line->direction line)
-  (make-direction (line-b line) (- (line-a line))))
-
-;;; Convert line into segment
-
-(define (line->segment line from to)
-  (make-segment (line:point line from)
-                (line:point line to)))
-
 ;-------------------------------------------------------------------------------
 ; Ray (semi-infinite line) 2d
 ;-------------------------------------------------------------------------------
 
 (define-structure ray o direction)
 
-;;; Build a line from a ray
-
-(define (ray->line r) ; TODO
-  (make-line #e0 #e0 #e0))
-
 ;-------------------------------------------------------------------------------
 ; Segments
 ;-------------------------------------------------------------------------------
 
 (define-structure segment a b)
-
-;;; Segment's direction vector
-
-(define (segment->direction seg)
-  (%accept (segment? seg))
-  (vect2:-vect2
-    (segment-b seg)
-    (segment-a seg)))
-
-;;; Build a line from a segment
-
-(define (segment->line seg)
-  (point+point->line (segment-a seg) (segment-b seg)))
-
-;;; Get the list of points that make the segment
-
-(define (segment->pseq seg)
-  (list (segment-a seg)
-        (segment-b seg)))
 
 ;;; Segment length
 
@@ -286,22 +200,9 @@
   (and (not-null? plis)
        (point? (car plis))))
 
-;;; Picks the first and the last points of the pseq to build the segment
-
-(define (pseq->segment plis)
-  (make-segment (first plis)
-                (last plis)))
-
-;;; Convert a pseq to a list of independent segments
-
-(define (pseq->lsegments pseq)
-  (map (lambda (a b) (make-segment b a))
-       (cdr pseq)
-       pseq))
-
 ;;; Calculate the bounding point of a pseq
 
-(define (pseq->bbox point-list)
+(define (pseq:bbox point-list)
   (let ((first (car point-list))
         (rest (cdr point-list)))
     (make-bbox
@@ -588,6 +489,109 @@
   (error "unimplemented"))
 
 ;-------------------------------------------------------------------------------
+; Basic conversions and locus
+;-------------------------------------------------------------------------------
+
+;;; Direction of the line passing through two points
+
+(define (point&point->direction p1 p2)
+  (vect2:-vect2 p2 p1))
+
+;;; Build a line from two points
+
+(define (point&point->line p q)
+  (let ((px (point-x p))
+        (py (point-y p))
+        (qx (point-x q))
+        (qy (point-y q)))
+    (cond
+     ((= qy py)
+      (cond
+       ((> qx px)
+        (make-line #e0 #e1 (- py)))
+       ((= qx px)
+        'point)
+        ;(make-line #e0 #e0 #e0))
+       (else
+        (make-line #e0 #e-1 py))))
+     ((= qx px)
+      (cond
+       ((> qy py)
+        (make-line #e-1 #e0 px))
+       ((= qy py) 
+        'point)
+        ;(make-line #e0 #e0 #e0))
+       (else
+        (make-line #e1 #e0 (- px)))))
+     (else
+      (let ((a (- py qy))
+            (b (- qx px)))
+        (make-line a
+                   b
+                   (- (+ (* px a)
+                         (* py b)))))))))
+
+;;; Build a line from a point and a direction vector
+
+(define (point&direction->line p dir)
+  (let ((dx (direction-x dir))
+        (dy (direction-y dir)))
+    (make-line (- dy)
+               dx
+               (- (* (point-x p)
+                     dy)
+                  (* (point-y p)
+                     dx)))))
+
+;;; Segment's direction vector
+
+(define (segment->direction seg)
+  (%accept (segment? seg))
+  (vect2:-vect2
+    (segment-b seg)
+    (segment-a seg)))
+
+;;; Build a line from a segment
+
+(define (segment->line seg)
+  (point&point->line (segment-a seg) (segment-b seg)))
+
+;;; Get the list of points that make the segment
+
+(define (segment->pseq seg)
+  (list (segment-a seg)
+        (segment-b seg)))
+
+;;; Build a line from a ray
+
+(define (ray->line r) ; TODO
+  (make-line #e0 #e0 #e0))
+
+;;; Convert line into direction
+
+(define (line->direction line)
+  (make-direction (line-b line) (- (line-a line))))
+
+;;; Convert line into segment
+
+(define (line->segment line from to)
+  (make-segment (line:point line from)
+                (line:point line to)))
+
+;;; Picks the first and the last points of the pseq to build the segment
+
+(define (pseq->segment plis)
+  (make-segment (first plis)
+                (last plis)))
+
+;;; Convert a pseq to a list of independent segments
+
+(define (pseq->lsegments pseq)
+  (map (lambda (a b) (make-segment b a))
+       (cdr pseq)
+       pseq))
+
+;-------------------------------------------------------------------------------
 ; Bounding boxes
 ;-------------------------------------------------------------------------------
 
@@ -662,7 +666,7 @@
 ;;; Line translation
 
 (define (translate.line line vec)
-  (point+direction->line (translate.point (line:point line 0)
+  (point&direction->line (translate.point (line:point line 0)
                                           vec)
                          (line->direction line)))
 
@@ -801,19 +805,26 @@
           (append-next intersections (cdr pol-rest))))))
   (append-next '() pol))
 
-;;; Segment-pseq (closed pseq) intersection
-
-;(define (intersection.segment-pseq seg plis)
- ; (intersection.segment-pseq seg (pseq:close plis)))
-
 ;;; Infinite line - segment intersection
 
 (define (intersection.line-segment line seg)
-  (aif i point? (intersection.line-line line (segment->line seg))
-       (if (segment:collinear-point-on? seg i)
-           i
+  (aif int point? (intersection.line-line line (segment->line seg))
+       (if (segment:collinear-point-on? seg int)
+           int
            'projection-intersection)
-       i))
+       int))
+
+;;; Infinite line - pseq intersections
+
+(define (intersection.line-pseq line pseq)
+  (pair-fold-2 (lambda (tail acc)
+                 (aif int point?
+                      (intersection.line-segment line (make-segment (car tail)
+                                                                    (cadr tail)))
+                      (cons int acc)
+                      acc))
+               '()
+               pseq))
 
 ;;; Infinite line - infinite line interesection
 
@@ -929,22 +940,3 @@
     (<e (point-y r) (point-y q)))
    (else
     #f)))
-
-;-------------------------------------------------------------------------------
-; Geometric calculations
-;-------------------------------------------------------------------------------
-
-;;; Direction of the line passing through two points
-
-(define (point+point->direction p1 p2)
-  (vect2:-vect2 p2 p1))
-
-;;; Direction of the line passing through a point and perpendicular to a line
-
-(define (point+line-perpendicular->direction p l)
-  (error "unimplemented"))
-
-;;; Direction of the line passing through a point and perpendicular to a pseq
-
-(define (point+pseq-perpendicular->direction p l)
-  (error "unimplemented"))

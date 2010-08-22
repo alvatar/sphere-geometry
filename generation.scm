@@ -5,14 +5,14 @@
 ;;; Geometry generation procedures
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(import (std srfi/1))
-(import ../core/syntax)
-(import ../core/functional)
-(import ../core/debugging)
-(import ../math/exact-algebra)
-(import ../math/inexact-algebra)
-(import ../visualization)
-(import kernel)
+(import (std srfi/1)
+        ../core/syntax
+        ../core/functional
+        ../core/debugging
+        ../math/exact-algebra
+        ../math/inexact-algebra
+        ../visualization
+        kernel)
 
 ;-------------------------------------------------------------------------------
 ; Direction generation
@@ -51,7 +51,7 @@
 (define (generate.point/two-points pa pb alpha)
   (vect2+
    pa
-   (vect2:*scalar (point+point->direction pa pb)
+   (vect2:*scalar (point&point->direction pa pb)
                   alpha)))
 
 ;;; Random point between two points
@@ -71,7 +71,7 @@
          (make-point (random-real/range (point-x a) (point-x b))
                      (random-real/range (point-y a) (point-y b)))
          p (gen a b)))
-  (let ((bounding-box (pseq->bbox pseq)))
+  (let ((bounding-box (pseq:bbox pseq)))
     (gen
      (bbox-lefttop bounding-box)
      (bbox-rightbottom bounding-box))))
