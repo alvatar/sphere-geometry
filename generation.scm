@@ -67,10 +67,12 @@
 
 (define (~generate.random-point-inside pseq)
   (define (gen a b)
-    (aif p (curry pseq:point-inside? pseq)  
+    (aif p
+         (curry pseq:point-inside? pseq)  
          (make-point (random-real/range (point-x a) (point-x b))
                      (random-real/range (point-y a) (point-y b)))
-         p (gen a b)))
+         p
+         (gen a b)))
   (let ((bounding-box (pseq:bbox pseq)))
     (gen
      (bbox-lefttop bounding-box)
@@ -85,8 +87,9 @@
   (define (respects-boundaries? p)
     (< b-dist (~distance.point-pseq p pseq)))
   (define (gen n plis)
-    (aif p (lambda (p) (and (respects-distances? p plis)
-                       (respects-boundaries? p)))
+    (aif p
+         (lambda (p) (and (respects-distances? p plis)
+                     (respects-boundaries? p)))
          (generate.random-point-inside pseq)
          (if (>= n N)
              (cons p plis)

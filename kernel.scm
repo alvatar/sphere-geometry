@@ -171,7 +171,7 @@
          (else
           (%accept (= (/ (- (point-y p) (point-y s1)) (- (point-y s2) (point-y s1)))
                       (/ (- (point-x p) (point-x s1)) (- (point-x s2) (point-x s1))))
-                   "Incoherent points and/or segment data") ; TODO: find reason!
+                   "Point does not lie on the segment. Check exactness of components")
           (/ (- (point-y p) (point-y s1)) (- (point-y s2) (point-y s1))))))
       'not-collinear))
 
