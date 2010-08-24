@@ -758,7 +758,7 @@
 
 ;;; Segment-segment intersection
 
-(define (intersection.segment-segment sg1 sg2)
+(define (intersect.segment-segment sg1 sg2)
   (let* ((a1 (car sg1))
          (a2 (cadr sg1))
          (b1 (car sg2))
@@ -793,22 +793,22 @@
 
 ;;; Segment-pseq intersection
 
-(define (intersection.segment-pseq seg pol)
+(define (intersect.segment-pseq seg pol)
   (define (append-next intersections pol-rest)
-    (let ((inters (intersection.segment-segment seg
-                                                (make-segment (car pol-rest)
-                                                              (cadr pol-rest)))))
+    (let ((inters (intersect.segment-segment seg
+                                             (make-segment (car pol-rest)
+                                                           (cadr pol-rest)))))
       (if (or (null? pol-rest) (< (length pol-rest) 3))
           (append intersections (list inters))
-        (if (point? inters)
-            (append-next (append intersections (list inters)) (cdr pol-rest))
-          (append-next intersections (cdr pol-rest))))))
+          (if (point? inters)
+              (append-next (append intersections (list inters)) (cdr pol-rest))
+              (append-next intersections (cdr pol-rest))))))
   (append-next '() pol))
 
 ;;; Infinite line - segment intersection
 
-(define (intersection.line-segment line seg)
-  (aif int point? (intersection.line-line line (segment->line seg))
+(define (intersect.line-segment line seg)
+  (aif int point? (intersect.line-line line (segment->line seg))
        (if (segment:collinear-point-on? seg int)
            int
            'projection-intersection)
@@ -816,11 +816,11 @@
 
 ;;; Infinite line - pseq intersections
 
-(define (intersection.line-pseq line pseq)
+(define (intersect.line-pseq line pseq)
   (pair-fold-2 (lambda (tail acc)
                  (aif int point?
-                      (intersection.line-segment line (make-segment (car tail)
-                                                                    (cadr tail)))
+                      (intersect.line-segment line (make-segment (car tail)
+                                                                 (cadr tail)))
                       (cons int acc)
                       acc))
                '()
@@ -828,7 +828,7 @@
 
 ;;; Infinite line - infinite line interesection
 
-(define (intersection.line-line l1 l2)
+(define (intersect.line-line l1 l2)
   (let ((l1a (line-a l1))
         (l1b (line-b l1))
         (l1c (line-c l1))

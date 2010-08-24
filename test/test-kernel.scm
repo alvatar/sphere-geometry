@@ -113,7 +113,7 @@
 
 (test-equal/= "intersection:line-line 2"
               vect2:=
-              (intersection.line-line
+              (intersect.line-line
                (segment->line (make-segment (make-point 0.0 0.0)
                                             (make-point 2.0 2.0)))
                (segment->line (make-segment (make-point 0.0 2.0)
@@ -122,7 +122,7 @@
 
 (test-equal/= "intersection:line-line 2"
               vect2:=
-              (intersection.line-line
+              (intersect.line-line
                (segment->line (make-segment (make-point 0.0 0.0)
                                             (make-point 2.0 2.0)))
                (segment->line (make-segment (make-point -2.0 0.0)
