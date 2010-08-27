@@ -5,7 +5,85 @@
 ;;; Geometric queries: search and sort
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(import kernel)
+(import (std srfi/1)
+        ../core/functional
+        kernel)
+
+;-------------------------------------------------------------------------------
+; Extremes
+;-------------------------------------------------------------------------------
+
+;;; General extreme query
+
+(define (find.extreme pseq selector tie-selector)
+  (reduce
+   (lambda (p extreme)
+     (let ((a (selector p))
+           (b (selector extreme)))
+      (cond
+       ((< a b) extreme)
+       ((= a b) (cond
+                 ((< (tie-selector p)
+                     (tie-selector extreme)) extreme)
+                 (else p)))
+       (else p))))
+   (car pseq)
+   pseq))
+
+;;; pseq right-most point
+
+(define pseq:extreme-right ;(curry find.extreme point-x point-x point-y point-y)
+  (lambda (pseq)
+    (find.extreme pseq point-x point-y)))
+
+;;; pseq left-most point
+
+(define (pseq:extreme-left pseq)
+  (reduce
+   (lambda (current next)
+     (cond
+      ((> (point-x current) (point-x next))
+       next)
+      ((= (point-x current) (point-x next))
+       (if (> (point-y current) (point-y next)) next current)) ; then bottom
+      (else
+       current)))
+   (car pseq)
+   pseq))
+
+;;; pseq top-most point
+
+(define (pseq:extreme-top pseq)
+  (reduce
+   (lambda (current next)
+     (cond
+      ((< (point-y current) (point-y next))
+       next)
+      ((= (point-y current) (point-y next))
+       (if (< (point-x current) (point-x next)) next current)) ; then right
+      (else
+       current)))
+   (car pseq)
+   pseq))
+
+;;; pseq bottom-most point
+
+(define (pseq:extreme-bottom pseq)
+  (reduce
+   (lambda (current next)
+     (cond
+      ((> (point-y current) (point-y next))
+       next)
+      ((= (point-y current) (point-y next))
+       (if (> (point-x current) (point-x next)) next current)) ; then left
+      (else
+       current)))
+   (car pseq)
+   pseq))
+
+;-------------------------------------------------------------------------------
+; Nearest queries
+;-------------------------------------------------------------------------------
 
 ;;; Find in a pseq the segment that is nearest to a point
 

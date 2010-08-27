@@ -406,66 +406,6 @@
                  0
                  pseq))))
 
-;;; pseq right-most point
-
-(define (pseq:extreme-right pseq)
-  (reduce
-   (lambda (current next)
-     (cond
-      ((< (point-x current) (point-x next))
-       next)
-      ((= (point-x current) (point-x next))
-       (if (< (point-y current) (point-y next)) next current)) ; then top
-      (else
-       current)))
-   (car pseq)
-   pseq))
-
-;;; pseq left-most point
-
-(define (pseq:extreme-left pseq)
-  (reduce
-   (lambda (current next)
-     (cond
-      ((> (point-x current) (point-x next))
-       next)
-      ((= (point-x current) (point-x next))
-       (if (> (point-y current) (point-y next)) next current)) ; then bottom
-      (else
-       current)))
-   (car pseq)
-   pseq))
-
-;;; pseq top-most point
-
-(define (pseq:extreme-top pseq)
-  (reduce
-   (lambda (current next)
-     (cond
-      ((< (point-y current) (point-y next))
-       next)
-      ((= (point-y current) (point-y next))
-       (if (< (point-x current) (point-x next)) next current)) ; then right
-      (else
-       current)))
-   (car pseq)
-   pseq))
-
-;;; pseq bottom-most point
-
-(define (pseq:extreme-bottom pseq)
-  (reduce
-   (lambda (current next)
-     (cond
-      ((> (point-y current) (point-y next))
-       next)
-      ((= (point-y current) (point-y next))
-       (if (> (point-x current) (point-x next)) next current)) ; then left
-      (else
-       current)))
-   (car pseq)
-   pseq))
-
 ;;; Find a common point of two given point lists
 
 (define (pseq:common-point? plis1 plis2)
