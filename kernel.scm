@@ -630,31 +630,6 @@
                   (bbox-leftbottom bb))))
 
 ;-------------------------------------------------------------------------------
-; Rotation
-;-------------------------------------------------------------------------------
-
-;;; Point rotation
-
-(define (rotate.point vec r-angle)
-  (make-point (- (* (point-x vec) (cos r-angle))
-                 (* (point-y vec) (sin r-angle)))
-              (+ (* (point-y vec) (cos r-angle))
-                 (* (point-x vec) (sin r-angle)))))
-
-;;; Point rotation with a reference
-
-(define (rotate.point-w/reference ref p r-angle)
-  (vect2:+vect2 ref
-    (rotate.point
-      (vect2:-vect2 p ref)
-      r-angle)))
-
-;;; Direction rotation
-
-(define (rotate.direction d)
-  (error "unimplemented"))
-
-;-------------------------------------------------------------------------------
 ; Translation
 ;-------------------------------------------------------------------------------
 
@@ -669,6 +644,192 @@
   (point&direction->line (translate.point (line:point line 0)
                                           vec)
                          (line->direction line)))
+
+;;; Ray translation
+
+(define (translate.ray pseq vec)
+  (error "unimplemented"))
+
+;;; Segment translation
+
+(define (translate.segment pseq vec)
+  (error "unimplemented"))
+
+;;; Pseq translation
+
+(define (translate.pseq pseq vec)
+  (error "unimplemented"))
+
+;-------------------------------------------------------------------------------
+; Rotation
+;-------------------------------------------------------------------------------
+
+;;; Point rotation with the origin
+
+(define (rotate.point/O vec alpha)
+  (make-point (- (* (point-x vec) (cos alpha))
+                 (* (point-y vec) (sin alpha)))
+              (+ (* (point-y vec) (cos alpha))
+                 (* (point-x vec) (sin alpha)))))
+
+;;; Point rotation with a reference
+
+(define (rotate.point/ref ref p alpha)
+  (vect2:+vect2 ref
+                (rotate.point (vect2:-vect2 p ref)
+                              alpha)))
+
+;;; Direction rotation
+
+(define (rotate.direction d alpha)
+  (error "unimplemented"))
+
+;;; Line rotation
+
+(define (rotate.line l alpha)
+  (error "unimplemented"))
+
+;;; Ray rotation
+
+(define (rotate.ray r alpha)
+  (error "unimplemented"))
+
+;;; Segment rotation with the origin
+
+(define (rotate.segment/O s alpha)
+  (error "unimplemented"))
+
+;;; Segment rotation with a reference point
+
+(define (rotate.segment/ref ref s alpha)
+  (error "unimplemented"))
+
+;;; Pseq rotation with the origin
+
+(define (rotate.pseq/O pseq alpha)
+  (error "unimplemented"))
+
+;;; Pseq rotation with a reference point
+
+(define (rotate.pseq/ref ref pseq alpha)
+  (error "unimplemented"))
+
+;-------------------------------------------------------------------------------
+; Scaling
+;-------------------------------------------------------------------------------
+
+;;; Point scaling with the origin
+
+(define (scale.point/O p scale)
+  (error "unimplemented"))
+
+;;; Point scaling with a reference point
+
+(define (scale.point/ref p scale)
+  (error "unimplemented"))
+
+;;; Line scaling with the origin
+
+(define (scale.line/O l scale)
+  (error "unimplemented"))
+
+;;; Line scaling with a reference point
+
+(define (scale.line/ref l scale)
+  (error "unimplemented"))
+
+;;; Ray scaling with the origin
+
+(define (scale.ray/O r scale)
+  (error "unimplemented"))
+
+;;; Ray scaling with a reference point
+
+(define (scale.ray/ref ref r scale)
+  (error "unimplemented"))
+
+;;; Segment scaling with the origin
+
+(define (scale.segment/O r scale)
+  (error "unimplemented"))
+
+;;; Segment scaling with a refernce point
+
+(define (scale.segment/ref r scale)
+  (error "unimplemented"))
+
+;;; Segment scaling with the origin
+
+(define (scale.pseq/O r scale)
+  (error "unimplemented"))
+
+;;; Segment scaling with a reference point
+
+(define (scale.pseq/ref r scale)
+  (error "unimplemented"))
+
+;-------------------------------------------------------------------------------
+; Translation along pseq
+;-------------------------------------------------------------------------------
+
+;;; Point translation along pseq
+
+(define (translate-along-pseq.point guide p x)
+  (error "unimplemented"))
+
+;;; Line translation along pseq
+
+(define (translate-along-pseq.line guide l x)
+  (error "unimplemented"))
+
+;;; Ray translation along pseq
+
+(define (translate-along-pseq.ray guide r x)
+  (error "unimplemented"))
+
+;;; Segment translation along pseq
+
+(define (translate-along-pseq.segment guide s x)
+  (error "unimplemented"))
+
+;;; Pseq translation along pseq
+
+(define (translate-along-pseq.pseq guide pseq x)
+  (error "unimplemented"))
+
+;-------------------------------------------------------------------------------
+; Scaling along pseq
+;-------------------------------------------------------------------------------
+
+;;; Point scaling along pseq with the guide origin
+
+(define (scale-along-pseq.point/O guide p scale)
+  (error "unimplemented"))
+
+;;; Point scaling along pseq with a reference point
+
+(define (scale-along-pseq.point/ref guide ref p scale)
+  (error "unimplemented"))
+
+;;; Segment scaling along pseq with the guide origin
+
+(define (scale-along-pseq.segment/O guide s scale)
+  (error "unimplemented"))
+
+;;; Segment scaling along pseq with a reference point
+
+(define (scale-along-pseq.segment/ref guide ref s scale)
+  (error "unimplemented"))
+
+;;; Pseq scaling along pseq with the guide origin
+
+(define (scale-along-pseq.pseq/O guide pseq scale)
+  (error "unimplemented"))
+
+;;; Pseq scaling along pseq with a reference point
+
+(define (scale-along-pseq.pseq/ref guide ref pseq scale)
+  (error "unimplemented"))
 
 ;-------------------------------------------------------------------------------
 ; Distances/squared distances
