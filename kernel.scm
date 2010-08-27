@@ -151,7 +151,7 @@
 
 ;;; Calculate absolute point given segment and percent
 
-(define (segment:relative-position->point seg rel)
+(define (segment:1d-coord->point seg rel)
   (let ((vec (segment->direction seg))
         (o (segment-a seg)))
     (make-point (+ (point-x o) (* (point-x vec) rel))
@@ -159,7 +159,7 @@
 
 ;;; Calculate relative position given a point collinear and on the segment
 
-(define (segment:point->relative-position seg p)
+(define (segment:point->1d-coord seg p)
   (if (segment:collinear-point-on? seg p)
       (let ((s1 (segment-a seg))
             (s2 (segment-b seg)))
@@ -318,7 +318,54 @@
       (pp b)
       (error "Point sequences cannot be connected")))))
 
-;;; pseq centroid
+;;; Make a list of the 1d coordinates of the pseq points, relative to its subspace
+
+(define (pseq:2d-coords->1d-coords pseq)
+  '())
+
+;;; Get a sub-pseq from two relative points
+
+(define (pseq:slice pseq a b)
+;  (pseq:2d-coords->1d-coords pseq)
+  
+  (if (= (length pseq) 2)
+      (let* ((Ax (point-x (first pseq)))
+             (Ay (point-y (first pseq)))
+             (ABx (- (point-x (last pseq)) Ax))
+             (ABy (- (point-y (last pseq)) Ay)))
+        (list (make-vect2 (+ Ax (* ABx a)) (+ Ay (* ABy a)))
+              (make-vect2 (+ Ax (* ABx b)) (+ Ay (* ABy b)))))
+      (error "Error - wall element has more than 2 relative points\n"))
+      ; Else:
+        ; 1. Precalcular lista de puntos relativos
+        ; 2. Hacer lista de puntos relativos menores que puerta
+        ; 3. Dibujar trayectoria de puerta completa de los segmentos menores
+        ; 4. Dibujar el porcentaje restante sobre el siguiente segmento
+  )
+
+;;; Get a point from a relative position in a pseq
+
+(define (pseq:1d-coord->point pseq x)
+  (segment:1d-coord->point
+   (pseq->segment pseq)
+   x)) ; TODO: consider general case
+
+;;; Clip a pseq between the intersections of two lines
+
+(define (pseq:clip/lines pseq la lb)
+  (error "unimplemented"))
+
+;;; Clip a pseq between the intersections of two lines ensuring is done clockwise
+
+(define (pseq:clip/lines-clockwise pseq la lb)
+  (error "unimplemented"))
+
+;;; Clip a pseq between the intersections of two lines ensuring is done clockwise
+
+(define (pseq:clip/lines-counterclockwise pseq la lb)
+  (error "unimplemented"))
+
+;;; Pseq centroid
 
 (define (pseq:centroid plis)
   (define (iter n sum plis-tail)
@@ -338,14 +385,14 @@
    (else
     (iter #e0 (make-point #e0 #e0) plis))))
 
-;;; pseq area
+;;; Pseq area
 ;;; http://www.mathsisfun.com/geometry/area-irregular-polygons.html
 ;;; http://mathworld.wolfram.com/PolygonArea.html (this one is implemented)
 ;;; 1/2 * / | x1 x2 | + | x2 x3 | + ... + | xn x1 | \
 ;;;       \ | y1 y2 |   | y2 y3 |         | yn y1 | /
 
 (define (pseq:area pseq)
-  (%accept (pseq:closed? pseq) "pseq must be closed to calculate area")
+  (%accept (pseq:closed? pseq) "pseq must be closed in order to calculate area")
   (abs
    (* 1/2
       (pair-fold (lambda (pair accum)
@@ -454,7 +501,7 @@
                                         ;    (vect2:normalize
       (segment->direction
         (make-segment
-          (segment:relative-position->point approx rel)
+          (segment:1d-coord->point approx rel)
           (segment-b approx)))))
 
 ;;; Calculate the normalized tangent vector in a point-list given the relative position
@@ -464,29 +511,8 @@
     (vect2:~normalize
       (segment->direction
         (make-segment
-          (segment:relative-position->point approx rel)
+          (segment:1d-coord->point approx rel)
           (segment-b approx))))))
-
-;;; Get a point from a relative position in a pseq
-
-(define (pseq:relative-position->point pseq r)
-  (segment:relative-position->point (pseq->segment pseq)
-                                    r)) ; TODO: consider general case
-
-;;; Clip a pseq between the intersections of two lines
-
-(define (pseq:clip/lines pseq la lb)
-  (error "unimplemented"))
-
-;;; Clip a pseq between the intersections of two lines ensuring is done clockwise
-
-(define (pseq:clip/lines-clockwise pseq la lb)
-  (error "unimplemented"))
-
-;;; Clip a pseq between the intersections of two lines ensuring is done clockwise
-
-(define (pseq:clip/lines-counterclockwise pseq la lb)
-  (error "unimplemented"))
 
 ;-------------------------------------------------------------------------------
 ; Basic conversions and locus
@@ -581,6 +607,7 @@
 ;;; Picks the first and the last points of the pseq to build the segment
 
 (define (pseq->segment plis)
+  ;(error "crap")
   (make-segment (first plis)
                 (last plis)))
 
@@ -676,8 +703,8 @@
 
 (define (rotate.point/ref ref p alpha)
   (vect2:+vect2 ref
-                (rotate.point (vect2:-vect2 p ref)
-                              alpha)))
+                (rotate.point/O (vect2:-vect2 p ref)
+                                alpha)))
 
 ;;; Direction rotation
 
@@ -829,7 +856,7 @@
 ;;; Pseq scaling along pseq with a reference point
 
 (define (scale-along-pseq.pseq/ref guide ref pseq scale)
-  (error "unimplemented"))
+  pseq)
 
 ;-------------------------------------------------------------------------------
 ; Distances/squared distances
