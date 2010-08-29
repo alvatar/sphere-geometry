@@ -15,16 +15,18 @@
 
 ;;; General extreme query
 
-(define (find.extreme pseq selector tie-selector)
+(define (find.extreme comparator selector
+                      tie-comparator tie-selector
+                      pseq)
   (reduce
    (lambda (p extreme)
      (let ((a (selector p))
            (b (selector extreme)))
       (cond
-       ((< a b) extreme)
+       ((comparator a b) extreme)
        ((= a b) (cond
-                 ((< (tie-selector p)
-                     (tie-selector extreme)) extreme)
+                 ((tie-comparator (tie-selector p)
+                                  (tie-selector extreme)) extreme)
                  (else p)))
        (else p))))
    (car pseq)
@@ -32,54 +34,19 @@
 
 ;;; pseq right-most point
 
-(define pseq:extreme-right ;(curry find.extreme point-x point-x point-y point-y)
-  (lambda (pseq)
-    (find.extreme pseq point-x point-y)))
+(define pseq:extreme-right (curry find.extreme < point-x < point-y))
 
 ;;; pseq left-most point
 
-(define (pseq:extreme-left pseq)
-  (reduce
-   (lambda (current next)
-     (cond
-      ((> (point-x current) (point-x next))
-       next)
-      ((= (point-x current) (point-x next))
-       (if (> (point-y current) (point-y next)) next current)) ; then bottom
-      (else
-       current)))
-   (car pseq)
-   pseq))
+(define pseq:extreme-left (curry find.extreme > point-x > point-y))
 
 ;;; pseq top-most point
 
-(define (pseq:extreme-top pseq)
-  (reduce
-   (lambda (current next)
-     (cond
-      ((< (point-y current) (point-y next))
-       next)
-      ((= (point-y current) (point-y next))
-       (if (< (point-x current) (point-x next)) next current)) ; then right
-      (else
-       current)))
-   (car pseq)
-   pseq))
+(define pseq:extreme-top (curry find.extreme < point-y < point-x))
 
 ;;; pseq bottom-most point
 
-(define (pseq:extreme-bottom pseq)
-  (reduce
-   (lambda (current next)
-     (cond
-      ((> (point-y current) (point-y next))
-       next)
-      ((= (point-y current) (point-y next))
-       (if (> (point-x current) (point-x next)) next current)) ; then left
-      (else
-       current)))
-   (car pseq)
-   pseq))
+(define pseq:extreme-bottom (curry find.extreme > point-y > point-x))
 
 ;-------------------------------------------------------------------------------
 ; Nearest queries
