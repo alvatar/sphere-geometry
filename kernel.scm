@@ -192,9 +192,9 @@
 (define (pseq? plis)
   (and (list? plis)
        (not-null? plis)
-       (every (lambda (p) (point? p)) plis)))
+       (every point? p plis)))
 
-;;; Is pseq? (shallow version)
+;;; Is pseq? only first is checked
 
 (define (pseq?-shallow plis)
   (and (not-null? plis)
@@ -348,7 +348,7 @@
 (define (pseq:1d-coord->point pseq x)
   (segment:1d-coord->point
    (pseq->segment pseq)
-   x)) ; TODO: consider general case
+   x)) ; TODO: consider general case!!!!!!!!!!!
 
 ;;; Clip a pseq between the intersections of two lines
 
@@ -887,6 +887,7 @@
 ;;; Segment-segment intersection
 
 (define (intersect.segment-segment sg1 sg2)
+  (%accept (and (segment? sg1) (segment? sg2)))
   (let* ((a1 (car sg1))
          (a2 (cadr sg1))
          (b1 (car sg2))
@@ -919,7 +920,7 @@
                              (- (point-y a2) (point-y a1))))
           'no-intersection)))))
 
-;;; Segment-pseq intersection
+;;; Segment - Pseq intersection
 
 (define (intersect.segment-pseq seg pol)
   (define (append-next intersections pol-rest)
@@ -931,20 +932,37 @@
           (if (point? inters)
               (append-next (append intersections (list inters)) (cdr pol-rest))
               (append-next intersections (cdr pol-rest))))))
+  (%accept (and (segment? seg) (pseq? pol)))
   (append-next '() pol))
+(define intersect.pseq-segment intersect.segment-pseq)
+
+;;; Ray - Segment intersection
+
+(define (intersect.ray-segment r s)
+  (error "unimplemented"))
+(define intersect.segment-ray intersect.ray-segment)
+
+;;; Ray - Infinite line intersection
+
+(define (intersect.ray-line r l)
+  (error "unimplemented"))
+(define intersect.line-ray intersect.ray-line)
 
 ;;; Infinite line - segment intersection
 
 (define (intersect.line-segment line seg)
+  (%accept (and (line? line) (segment? seg)))
   (aif int point? (intersect.line-line line (segment->line seg))
        (if (segment:collinear-point-on? seg int)
            int
            'projection-intersection)
        int))
+(define intersect.segment-line intersect.segment-line)
 
 ;;; Infinite line - pseq intersections
 
 (define (intersect.line-pseq line pseq)
+  (%accept (and (line? line) (pseq? pseq)))
   (pair-fold-2 (lambda (tail acc)
                  (aif int point?
                       (intersect.line-segment line (make-segment (car tail)
@@ -953,10 +971,12 @@
                       acc))
                '()
                pseq))
+(define intersect.pseq-line intersect.line-pseq)
 
 ;;; Infinite line - infinite line interesection
 
 (define (intersect.line-line l1 l2)
+  (%accept (and (line? l1) (line? l2)))
   (let ((l1a (line-a l1))
         (l1b (line-b l1))
         (l1c (line-c l1))
