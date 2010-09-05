@@ -5,10 +5,10 @@
 ;;; Geometric kernel
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(declare (standard-bindings)
-         (extended-bindings)
-         (block))
-(compile-options force-compile: #t)
+;; (declare (standard-bindings)
+;;          (extended-bindings)
+;;          (block))
+;; (compile-options force-compile: #t)
 
 (import (std srfi/1)
         ../core/list
@@ -27,6 +27,7 @@
 (define point? vect2?)
 (define point-x vect2-x)
 (define point-y vect2-y)
+(define point:= vect2:=)
 
 ;-------------------------------------------------------------------------------
 ; Direction 2d
@@ -82,6 +83,17 @@
                     (- (/ (- (- a) c) b)
                        (* i a))))))
 
+;;; Are points in same half-plane?
+;;;
+;;;    \       p1
+;;;     \     x
+;;;      \
+;;;       \  x
+;;;        \  p2
+
+(define (line:are-points-in-same-halfplane? line p1 p2)
+  (error "unimplemented"))
+
 ;-------------------------------------------------------------------------------
 ; Ray (semi-infinite line) 2d
 ;-------------------------------------------------------------------------------
@@ -97,56 +109,59 @@
 ;;; Segment length
 
 (define (segment:~length seg)
-;  (assert (segment? seg) segment:~length)
+  (%assert (segment? seg))
   (vect2:~magnitude (segment->direction seg)))
 
 ;;; Reverse segment
 
 (define (segment:reverse seg)
- ; (assert (segment? seg) segment:reverse)
+  (%assert (segment? seg))
   (make-segment (segment-b seg)
                 (segment-a seg)))
 
 ;;; Tell whether the point is an end point of the segment
 
 (define (segment:is-end-point? segment point)
-  (let* ((px (point-x point))
-         (py (point-y point))
-         (a (segment-a segment))
-         (ax (point-x a))
-         (ay (point-y a))
-         (b (segment-b segment))
-         (bx (point-x b))
-         (by (point-y b)))
-    (or (and
-          (= ax px)
-          (= ay py))
-        (and
-          (= bx px)
-          (= by py)))))
+  (or (point:= point (segment-a segment))
+      (point:= point (segment-b segment))))
 
-;;; Point collinear to segment?
+;;; Is point collinear to segment?
 
 (define (segment:collinear-point? seg p)
   (error "unimplemented")) ; TODO
 
-;;; Point collinear and on the segment?
+;;; Is point collinear and on the segment?
 
 (define (segment:collinear-point-on? seg p)
   (collinear-ordered-points? (segment-a seg) p (segment-b seg)))
 
+;;; Are the 3 segments in the same half-plane, using the middle one for
+;;; supporting the line
+;;;          x
+;;;      x    \ s3 /
+;;;       \    -\ /
+;;;        \     X
+;;;      s1 \   /
+;;;          \ / s2
+;;;           X
+;;;          /
+;;;         /
+              
+(define (segment:3-in-same-halfplane/middle s1 s2 s3)
+  (error "unimplemented"))
+
 ;;; Tell whether the two segments are connected
 
-(define (segment:connected-segment? seg1 seg2)
-  (or (segment:is-end-point? seg2 (segment-a seg1))
-      (segment:is-end-point? seg2 (segment-b seg1))))
+(define (segment:connected-segment? s1 s2)
+  (or (segment:is-end-point? s2 (segment-a s1))
+      (segment:is-end-point? s2 (segment-b s1))))
 
 ;;; Tell whether the segments are parallel
 
-(define (segment:parallel-segment? seg1 seg2)
+(define (segment:parallel-segment? s1 s2)
   (vect2:~=e
-    (vect2:~normalize (segment->direction seg1))
-    (vect2:~normalize (segment->direction seg2))
+    (vect2:~normalize (segment->direction s1))
+    (vect2:~normalize (segment->direction s2))
     0.01))
 
 ;;; Calculate absolute point given segment and percent
@@ -192,12 +207,13 @@
 (define (pseq? plis)
   (and (list? plis)
        (not-null? plis)
-       (every point? p plis)))
+       (every point? plis)))
 
 ;;; Is pseq? only first is checked
 
 (define (pseq?-shallow plis)
-  (and (not-null? plis)
+  (and (list? plis)
+       (not-null? plis)
        (point? (car plis))))
 
 ;;; Calculate the bounding point of a pseq
@@ -234,21 +250,10 @@
 
 ;;; Is end point?
 
-(define (pseq:is-end-point? segment point)
-  (let* ((px (point-x point))
-         (py (point-y point))
-         (a (first segment))
-         (ax (point-x a))
-         (ay (point-y a))
-         (b (last segment))
-         (bx (point-x b))
-         (by (point-y b)))
-    (or (and
-          (= ax px)
-          (= ay py))
-        (and
-          (= bx px)
-          (= by py)))))
+(define (pseq:is-end-point? pseq p)
+  (%accept (and (pseq? pseq) (point? p)))
+  (or (point:= (first pseq) p)
+      (point:= (last pseq) p)))
 
 ;;; Are these pseq connected?
 
@@ -327,7 +332,7 @@
 
 (define (pseq:slice pseq a b)
 ;  (pseq:2d-coords->1d-coords pseq)
-  
+
   (if (= (length pseq) 2)
       (let* ((Ax (point-x (first pseq)))
              (Ay (point-y (first pseq)))
@@ -484,7 +489,7 @@
       (cond
        ((> qy py)
         (make-line #e-1 #e0 px))
-       ((= qy py) 
+       ((= qy py)
         'point)
         ;(make-line #e0 #e0 #e0))
        (else
@@ -957,7 +962,7 @@
            int
            'projection-intersection)
        int))
-(define intersect.segment-line intersect.segment-line)
+(define intersect.segment-line intersect.line-segment)
 
 ;;; Infinite line - pseq intersections
 

@@ -14,6 +14,7 @@
         ../core/syntax
         ../core/functional
         ../core/debugging
+        ../core/list
         ../math/exact-algebra
         ../math/inexact-algebra
         ../visualization
@@ -25,7 +26,7 @@
 
 ;;; Generate inexact random direction
 
-(define (~generate.random-direction)
+(define (generate.~random-direction)
   (make-direction (random-real)
                   (random-real)))
 
@@ -37,7 +38,7 @@
 
 ;;; Generate inexact random point
 
-(define (~generate.random-point)
+(define (generate.~random-point)
   (make-point (random-real)
               (random-real)))
 
@@ -70,7 +71,7 @@
 
 ;;; Return a random point that is inside a given pseq
 
-(define (~generate.random-point-inside pseq)
+(define (generate.~random-point-inside pseq)
   (define (gen a b)
     (aif p
          (curry pseq:point-inside? pseq)  
@@ -85,7 +86,7 @@
 
 ;;; Return a random point that is inside a given pseq
 
-(define (~generate.random-points/separation&boundaries N pseq p-dist b-dist)
+(define (generate.~random-points/separation&boundaries N pseq p-dist b-dist)
                                         ; TODO: OPTIMIZE, A way would be dividing the space
   (define (respects-distances? p plis)
     (every (lambda (p-in-plis) (< p-dist (~distance.point-point p p-in-plis))) plis))
@@ -95,7 +96,7 @@
     (aif p
          (lambda (p) (and (respects-distances? p plis)
                      (respects-boundaries? p)))
-         (generate.random-point-inside pseq)
+         (generate.~random-point-inside pseq)
          (if (>= n N)
              (cons p plis)
              (gen (add1 n) (cons p plis)))
@@ -104,7 +105,7 @@
 
 ;;; Generate regular point mesh
 
-(define (~?generate.point-mesh-centered bb limits-offset offset-x offset-y #!optional point-modifier)
+(define (generate.point-mesh-centered bb limits-offset offset-x offset-y #!optional point-modifier)
   (let* ((obox (vect2+ (make-point limits-offset limits-offset) (bbox-lefttop bb)))
          (o-x (vect2-x obox))
          (o-y (vect2-y obox))
