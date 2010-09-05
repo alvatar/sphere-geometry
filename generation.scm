@@ -5,10 +5,10 @@
 ;;; Geometry generation procedures
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(declare (standard-bindings)
-         (extended-bindings)
-         (block))
-(compile-options force-compile: #t)
+;; (declare (standard-bindings)
+;;          (extended-bindings)
+;;          (block))
+;; (compile-options force-compile: #t)
 
 (import (std srfi/1)
         ../core/syntax
@@ -26,7 +26,7 @@
 
 ;;; Generate inexact random direction
 
-(define (generate.~random-direction)
+(define (~generate.random-direction)
   (make-direction (random-real)
                   (random-real)))
 
@@ -38,7 +38,7 @@
 
 ;;; Generate inexact random point
 
-(define (generate.~random-point)
+(define (~generate.random-point)
   (make-point (random-real)
               (random-real)))
 
@@ -71,7 +71,7 @@
 
 ;;; Return a random point that is inside a given pseq
 
-(define (generate.~random-point-inside pseq)
+(define (~generate.random-point-inside pseq)
   (define (gen a b)
     (aif p
          (curry pseq:point-inside? pseq)  
@@ -86,7 +86,7 @@
 
 ;;; Return a random point that is inside a given pseq
 
-(define (generate.~random-points/separation&boundaries N pseq p-dist b-dist)
+(define (~generate.random-points/separation&boundaries N pseq p-dist b-dist)
                                         ; TODO: OPTIMIZE, A way would be dividing the space
   (define (respects-distances? p plis)
     (every (lambda (p-in-plis) (< p-dist (~distance.point-point p p-in-plis))) plis))
@@ -96,7 +96,7 @@
     (aif p
          (lambda (p) (and (respects-distances? p plis)
                      (respects-boundaries? p)))
-         (generate.~random-point-inside pseq)
+         (~generate.random-point-inside pseq)
          (if (>= n N)
              (cons p plis)
              (gen (add1 n) (cons p plis)))
