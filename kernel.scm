@@ -144,7 +144,7 @@
 ;;;      s1 \   /
 ;;;          \ / s2
 ;;;           X
-;;;          /
+;;;          /      Here, s1 and s3 lie in the same half-plane
 ;;;         /
               
 (define (segment:3-in-same-halfplane/middle s1 s2 s3)
