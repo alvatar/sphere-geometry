@@ -159,10 +159,9 @@
 ;;; Tell whether the segments are parallel
 
 (define (segment:parallel-segment? s1 s2)
-  (vect2:~=e
+  (vect2:=
     (vect2:~normalize (segment->direction s1))
-    (vect2:~normalize (segment->direction s2))
-    0.01))
+    (vect2:~normalize (segment->direction s2))))
 
 ;;; Calculate absolute point given segment and percent
 
