@@ -551,7 +551,6 @@
 ;;; Picks the first and the last points of the pseq to build the segment
 
 (define (pseq->segment plis)
-  ;(error "crap")
   (make-segment (first plis)
                 (last plis)))
 
@@ -599,6 +598,88 @@
                   (bbox-righttop bb)
                   (bbox-rightbottom bb)
                   (bbox-leftbottom bb))))
+
+;-------------------------------------------------------------------------------
+; Distances/squared distances
+;-------------------------------------------------------------------------------
+
+;;; Calculate the distance between two points
+
+(define (squareddistance.point-point a b)
+  (+ (square (- (point-x a) (point-x b)))
+     (square (- (point-y a) (point-y b)))))
+
+;;; Calculate the distance between point and segment
+
+(define (squareddistance.point-segment p sg)
+  (let* ((p1x (point-x (segment-a sg)))
+         (p1y (point-y (segment-a sg)))
+         (p2x (point-x (segment-b sg)))
+         (p2y (point-y (segment-b sg)))
+         (px (point-x p))
+         (py (point-y p))
+         (su (- p2x p1x))
+         (sv (- p2y p1y))
+         (div (+ (* su su) (* sv sv)))
+         (u (/ (+ (* (- px p1x) su)
+                  (* (- py p1y) sv))
+               div)))
+    (cond
+     ((> u 1)
+      (set! u 1))
+     ((< u 0)
+      (set! u 0)))
+    (let* ((x (+ p1x (* u su)))
+           (y (+ p1y (* u sv)))
+           (dx (- x px))
+           (dy (- y py)))
+      (+ (* dx dx) (* dy dy)))))
+
+;;; Calculate the distance between a point and a point list
+
+(define (squareddistance.point-pseq p plis)
+  (cond
+   ((or (null? plis) (null? (cdr plis)))
+    +inf.0)
+   (else
+    (min (squareddistance.point-segment
+           p
+           (make-segment (car plis) (cadr plis)))
+         (squareddistance.point-pseq
+           p
+           (cdr plis))))))
+
+;;; Calculate the minimum squared distance between two pseqs, considering only end points
+
+(define (squareddistance.pseq-pseq/endpoints ps1 ps2)
+  (let ((ps1-f (first ps1))
+        (ps1-l (last ps1))
+        (ps2-f (first ps2))
+        (ps2-l (last ps2)))
+    (min (squareddistance.point-point ps1-f ps2-f)
+         (squareddistance.point-point ps1-f ps2-l)
+         (squareddistance.point-point ps1-l ps2-f)
+         (squareddistance.point-point ps1-l ps2-l))))
+
+;;; Calculate the distance between two points
+
+(define (~distance.point-point a b)
+  (sqrt (squareddistance.point-point a b)))
+
+;;; Calculate the distance between point and segment
+
+(define (~distance.point-segment p sg)
+  (sqrt (squareddistance.point-segment p sg)))
+
+;;; Calculate the distance between a point and a point list
+
+(define (~distance.point-pseq p plis)
+  (sqrt (squareddistance.point-pseq p plis)))
+
+;;; Calculate the minimum distance between two pseqs, considering only end points
+
+(define (~distance.pseq-pseq/endpoints ps1 ps2)
+  (sqrt (squareddistance.pseq-pseq/endpoints ps1 ps2)))
 
 ;-------------------------------------------------------------------------------
 ; Translation
@@ -803,88 +884,6 @@
   pseq)
 
 ;-------------------------------------------------------------------------------
-; Distances/squared distances
-;-------------------------------------------------------------------------------
-
-;;; Calculate the distance between two points
-
-(define (squareddistance.point-point a b)
-  (+ (square (- (point-x a) (point-x b)))
-     (square (- (point-y a) (point-y b)))))
-
-;;; Calculate the distance between point and segment
-
-(define (squareddistance.point-segment p sg)
-  (let* ((p1x (point-x (segment-a sg)))
-         (p1y (point-y (segment-a sg)))
-         (p2x (point-x (segment-b sg)))
-         (p2y (point-y (segment-b sg)))
-         (px (point-x p))
-         (py (point-y p))
-         (su (- p2x p1x))
-         (sv (- p2y p1y))
-         (div (+ (* su su) (* sv sv)))
-         (u (/ (+ (* (- px p1x) su)
-                  (* (- py p1y) sv))
-               div)))
-    (cond
-     ((> u 1)
-      (set! u 1))
-     ((< u 0)
-      (set! u 0)))
-    (let* ((x (+ p1x (* u su)))
-           (y (+ p1y (* u sv)))
-           (dx (- x px))
-           (dy (- y py)))
-      (+ (* dx dx) (* dy dy)))))
-
-;;; Calculate the distance between a point and a point list
-
-(define (squareddistance.point-pseq p plis)
-  (cond
-   ((or (null? plis) (null? (cdr plis)))
-    +inf.0)
-   (else
-    (min (squareddistance.point-segment
-           p
-           (make-segment (car plis) (cadr plis)))
-         (squareddistance.point-pseq
-           p
-           (cdr plis))))))
-
-;;; Calculate the minimum squared distance between two pseqs, considering only end points
-
-(define (squareddistance.pseq-pseq/endpoints ps1 ps2)
-  (let ((ps1-f (first ps1))
-        (ps1-l (last ps1))
-        (ps2-f (first ps2))
-        (ps2-l (last ps2)))
-    (min (squareddistance.point-point ps1-f ps2-f)
-         (squareddistance.point-point ps1-f ps2-l)
-         (squareddistance.point-point ps1-l ps2-f)
-         (squareddistance.point-point ps1-l ps2-l))))
-
-;;; Calculate the distance between two points
-
-(define (~distance.point-point a b)
-  (sqrt (squareddistance.point-point a b)))
-
-;;; Calculate the distance between point and segment
-
-(define (~distance.point-segment p sg)
-  (sqrt (squareddistance.point-segment p sg)))
-
-;;; Calculate the distance between a point and a point list
-
-(define (~distance.point-pseq p plis)
-  (sqrt (squareddistance.point-pseq p plis)))
-
-;;; Calculate the minimum distance between two pseqs, considering only end points
-
-(define (~distance.pseq-pseq/endpoints ps1 ps2)
-  (sqrt (squareddistance.pseq-pseq/endpoints ps1 ps2)))
-
-;-------------------------------------------------------------------------------
 ; Intersections
 ;-------------------------------------------------------------------------------
 
@@ -977,7 +976,7 @@
                pseq))
 (define intersect.pseq-line intersect.line-pseq)
 
-;;; Infinite line - infinite line interesection
+;;; Infinite line - infinite line intersection
 
 (define (intersect.line-line l1 l2)
   (%accept (and (line? l1) (line? l2)))
@@ -1003,6 +1002,25 @@
                       (/ nom2 den))
           'no-intersection)
         'no-intersection))))
+
+;-------------------------------------------------------------------------------
+; Projections
+;-------------------------------------------------------------------------------
+
+;;; Line projection on line
+
+(define (project.line<-line l1 l2)
+  (error "unimplemented"))
+
+;;; Segment projection on line
+
+(define (project.line<-segment l s)
+  (error "unimplemented"))
+
+;;; Pseq projection on line
+
+(define (project.line<-pseq l ps)
+  (error "unimplemented"))
 
 ;-------------------------------------------------------------------------------
 ; Predicates
