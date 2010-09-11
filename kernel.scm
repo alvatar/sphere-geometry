@@ -127,9 +127,9 @@
 
 ;;; Tell whether the point is an end point of the segment
 
-(define (segment:is-end-point? segment point)
-  (or (point:= point (segment-a segment))
-      (point:= point (segment-b segment))))
+(define (segment:end-point? seg p)
+  (or (point:= p (segment-a seg))
+      (point:= p (segment-b seg))))
 
 ;;; Is point collinear to segment?
 
@@ -168,8 +168,8 @@
 ;;; Tell whether the two segments are connected
 
 (define (segment:connected-segment? s1 s2)
-  (or (segment:is-end-point? s2 (segment-a s1))
-      (segment:is-end-point? s2 (segment-b s1))))
+  (or (segment:end-point? s2 (segment-a s1))
+      (segment:end-point? s2 (segment-b s1))))
 
 ;;; Tell whether the segments are parallel
 
@@ -264,7 +264,7 @@
 
 ;;; Is end point?
 
-(define (pseq:is-end-point? pseq p)
+(define (pseq:end-point? pseq p)
   (%accept (and (pseq? pseq) (point? p)))
   (or (point:= (first pseq) p)
       (point:= (last pseq) p)))
@@ -272,8 +272,8 @@
 ;;; Are these pseq connected?
 
 (define (pseq:connected-pseq? p1 p2)
-  (or (pseq:is-end-point? p2 (first p1))
-      (pseq:is-end-point? p2 (last p1))))
+  (or (pseq:end-point? p2 (first p1))
+      (pseq:end-point? p2 (last p1))))
 
 ;;; Are these pseq completely parallel?
 
