@@ -92,7 +92,7 @@
 ;;;        \  p2
 
 (define (line:are-points-in-same-halfplane? line p1 p2)
-  (error "unimplemented"))
+  (not (point? (intersect.line-segment line (make-segment p1 p2)))))
 
 ;-------------------------------------------------------------------------------
 ; Ray (semi-infinite line) 2d
@@ -109,13 +109,19 @@
 ;;; Segment length
 
 (define (segment:~length seg)
-  (%assert (segment? seg))
+  (%accept (segment? seg))
   (vect2:~magnitude (segment->direction seg)))
+
+;;; Segment squared length
+
+(define (segment:squaredlength seg)
+  (%accept (segment? seg))
+  (vect2:squaredmagnitude (segment->direction seg)))
 
 ;;; Reverse segment
 
 (define (segment:reverse seg)
-  (%assert (segment? seg))
+  (%accept (segment? seg))
   (make-segment (segment-b seg)
                 (segment-a seg)))
 
@@ -147,8 +153,17 @@
 ;;;          /      Here, s1 and s3 lie in the same half-plane
 ;;;         /
               
-(define (segment:3-in-same-halfplane/middle s1 s2 s3)
-  (error "unimplemented"))
+(define (segment:3-in-same-halfplane/middle s1 s2 s3) ; TODO: should be halfplane: in query module?
+  (let ((merged-pseq (pseq:append
+                      (pseq:append
+                       (segment->pseq s1)
+                       (segment->pseq s2))
+                      (segment->pseq s3))))
+    (%accept (length= merged-pseq 4) "merged segments in pseq doesn't have 4 points as expected")
+    (line:are-points-in-same-halfplane? (point&point->line (second merged-pseq)
+                                                           (third merged-pseq))
+                                        (first merged-pseq)
+                                        (fourth merged-pseq))))
 
 ;;; Tell whether the two segments are connected
 
@@ -1007,17 +1022,29 @@
 ; Projections
 ;-------------------------------------------------------------------------------
 
-;;; Line projection on line
+;;; Point projection on a line
+
+(define (project.line<-point l p)
+  (%accept point? "a point projected to a line should be a point!"
+           (intersect.line-line
+            l
+            (point&direction->line
+             p
+             (direction:perpendicular (line->direction l))))))
+
+;;; Line projection on a line
 
 (define (project.line<-line l1 l2)
   (error "unimplemented"))
 
-;;; Segment projection on line
+;;; Segment projection on a line
 
 (define (project.line<-segment l s)
-  (error "unimplemented"))
+  (make-segment
+   (project.line<-point l (segment-a s))
+   (project.line<-point l (segment-b s))))
 
-;;; Pseq projection on line
+;;; Pseq projection on a line
 
 (define (project.line<-pseq l ps)
   (error "unimplemented"))
