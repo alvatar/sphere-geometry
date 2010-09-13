@@ -340,7 +340,7 @@
 ;;; Make a list of the 1d coordinates of the pseq points, relative to its subspace
 
 (define (pseq:2d-coords->1d-coords pseq)
-  '())
+  (error "unimplemented"))
 
 ;;; Get a sub-pseq from two relative points
 
@@ -361,6 +361,11 @@
         ; 3. Dibujar trayectoria de puerta completa de los segmentos menores
         ; 4. Dibujar el porcentaje restante sobre el siguiente segmento
   )
+
+;;; Get the two sub-pseqs in which a pseq is divided with a point
+
+(define (pseq:partition pseq x)
+  (error "unimplemented"))
 
 ;;; Get a point from a relative position in a pseq
 
