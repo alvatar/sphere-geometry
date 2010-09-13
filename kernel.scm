@@ -186,7 +186,7 @@
     (make-point (+ (point-x o) (* (point-x vec) rel))
                 (+ (point-y o) (* (point-y vec) rel)))))
 
-;;; Calculate relative position given a point collinear and on the segment
+;;; Calculate relative position given a collinear point on the segment
 
 (define (segment:point->1d-coord seg p)
   (if (segment:collinear-point-on? seg p)
@@ -203,6 +203,12 @@
                    "Point does not lie on the segment. Check exactness of components")
           (/ (- (point-y p) (point-y s1)) (- (point-y s2) (point-y s1))))))
       'not-collinear))
+
+;;; Calculate relative position given a collinear point on the segment's line
+;;; This version calculates positions out of the segment but still collinear
+
+(define (segment:point->1d-coord* seg p)
+  (error "unimplemented"))
 
 ;;; Calculate the segment's mid point
 
