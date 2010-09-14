@@ -109,19 +109,16 @@
 ;;; Segment length
 
 (define (segment:~length seg)
-  (%accept (segment? seg))
   (vect2:~magnitude (segment->direction seg)))
 
 ;;; Segment squared length
 
 (define (segment:squaredlength seg)
-  (%accept (segment? seg))
   (vect2:squaredmagnitude (segment->direction seg)))
 
 ;;; Reverse segment
 
 (define (segment:reverse seg)
-  (%accept (segment? seg))
   (make-segment (segment-b seg)
                 (segment-a seg)))
 
@@ -134,7 +131,7 @@
 ;;; Is point collinear to segment?
 
 (define (segment:collinear-point? seg p)
-  (error "unimplemented")) ; TODO
+  (collinear-points? (segment-a seg) p (segment-b seg)))
 
 ;;; Is point collinear and on the segment?
 
@@ -160,8 +157,9 @@
                        (segment->pseq s2))
                       (segment->pseq s3))))
     (%accept (length= merged-pseq 4) "merged segments in pseq doesn't have 4 points as expected")
-    (line:are-points-in-same-halfplane? (point&point->line (second merged-pseq)
-                                                           (third merged-pseq))
+    (line:are-points-in-same-halfplane? (point&point->line
+                                         (second merged-pseq)
+                                         (third merged-pseq))
                                         (first merged-pseq)
                                         (fourth merged-pseq))))
 
@@ -208,7 +206,20 @@
 ;;; This version calculates positions out of the segment but still collinear
 
 (define (segment:point->1d-coord* seg p)
-  (error "unimplemented"))
+  (if (segment:collinear-point? seg p)
+      (let ((s1 (segment-a seg))
+            (s2 (segment-b seg)))
+        (cond
+         ((= (point-x s1) (point-x s2))
+          (/ (- (point-y p) (point-y s1)) (- (point-y s2) (point-y s1))))
+         ((= (point-y s1) (point-y s2))
+          (/ (- (point-x p) (point-x s1)) (- (point-x s2) (point-x s1))))
+         (else
+          (%accept (= (/ (- (point-y p) (point-y s1)) (- (point-y s2) (point-y s1)))
+                      (/ (- (point-x p) (point-x s1)) (- (point-x s2) (point-x s1))))
+                   "Point does not lie on the segment. Check exactness of components")
+          (/ (- (point-y p) (point-y s1)) (- (point-y s2) (point-y s1))))))
+      'not-collinear))
 
 ;;; Calculate the segment's mid point
 
@@ -242,18 +253,18 @@
   (let ((first (car point-list))
         (rest (cdr point-list)))
     (make-bbox
-      (make-point (fold (lambda (point x) (min x (point-x point)))
-                        (point-x first)
-                        rest)
-                  (fold (lambda (point y) (min y (point-y point)))
-                        (point-y first)
-                        rest))
-      (make-point (fold (lambda (point x) (max x (point-x point)))
-                        (point-x first)
-                        rest)
-                  (fold (lambda (point y) (max y (point-y point)))
-                        (point-y first)
-                        rest)))))
+     (make-point (fold (lambda (point x) (min x (point-x point)))
+                       (point-x first)
+                       rest)
+                 (fold (lambda (point y) (min y (point-y point)))
+                       (point-y first)
+                       rest))
+     (make-point (fold (lambda (point x) (max x (point-x point)))
+                       (point-x first)
+                       rest)
+                 (fold (lambda (point y) (max y (point-y point)))
+                       (point-y first)
+                       rest)))))
 
 ;;; Length of a pseq
 
@@ -1064,8 +1075,17 @@
 ; Predicates
 ;-------------------------------------------------------------------------------
 
+;;; Are these points collinear?
+
+(define (collinear-points? p q r)
+  (let ((px (point-x p)) (py (point-y p))
+        (qx (point-x q)) (qy (point-y q))
+        (rx (point-x r)) (ry (point-y r)))
+    (zero?
+     (determinant:2x2 (- qx px) (- qy py)
+                      (- rx px) (- ry py)))))
+
 ;;; Are these points collinear and ordered (left-to-right or right-to-left)?
-;;; TODO: Convert to pseqs!!
 
 (define (collinear-ordered-points? p q r)
   (cond
@@ -1078,24 +1098,6 @@
    ((< (point-y q) (point-y p))
     (> (point-y q) (point-y r)))
    (else #t)))
-
-;; (define (<e a b)
-;;   (< (+ a 0.01) b))
-
-;; (define (>e a b)
-;;   (> a (+ b 0.01)))
-
-;; (define (collinear-ordered-points? p q r)
-;;   (cond
-;;    ((<e (point-x p) (point-x q))
-;;     (>e (point-x r) (point-x q)))
-;;    ((<e (point-x q) (point-x p))
-;;     (>e (point-x q) (point-x r)))
-;;    ((<e (point-y p) (point-y q))
-;;     (>e (point-y r) (point-y q)))
-;;    ((<e (point-y q) (point-y p))
-;;     (>e (point-y q) (point-y r)))
-;;    (else #t)))
 
 ;;; Are these points collinear and strictly ordered?
 
