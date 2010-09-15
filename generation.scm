@@ -62,7 +62,7 @@
 
 ;;; Random point between two points
 
-(define (generate.random-point/two-points pa pb)
+(define (~generate.random-point/two-points pa pb)
   (generate.point/two-points pa pb (random-exact)))
 
 ;-------------------------------------------------------------------------------
