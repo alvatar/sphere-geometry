@@ -89,3 +89,24 @@
                    (car sl)
                    (cdr sl))
       (car sl)))
+
+;-------------------------------------------------------------------------------
+; Directions
+;-------------------------------------------------------------------------------
+
+;;; Find the direction that describes the longest possible diagonal
+
+(define (find.direction/longest-diagonal pseq)
+  (error "unimplemented"))
+
+;;; Find the direction that describes the longest possible segment connectig
+;;; side mid-points
+
+(define (find.direction/longest-midsegment pseq)
+  (error "unimplemented"))
+
+;;; Find the direction that describes the longest possible segment produced by
+;;; the intersection of a line passing through the center of the polygon
+
+(define (find.direction/longest-intersections pseq)
+  (error "unimplemented"))
