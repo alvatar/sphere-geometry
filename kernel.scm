@@ -239,6 +239,16 @@
           (/ (- (point-y p) (point-y s1)) (- (point-y s2) (point-y s1))))))
       'not-collinear))
 
+;;; Calculate a point given a 1d coordinate in a segment
+
+(define (segment:1d-coord->point seg coord)
+  (error "unimplemented"))
+
+;;; Calculate the 1d coordinate in a segment given a collinear point
+
+(define (segment:point->1d-coord seg p)
+  (error "unimplemented"))
+
 ;;; Calculate the segment's mid point
 
 (define (segment:mid-point seg)
