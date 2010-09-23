@@ -196,7 +196,7 @@
 
 ;;; Calculate absolute point given segment and percent
 
-(define (segment:1d-coord->point seg rel)
+(define (segment:normalized-1d->point seg rel)
   (let ((vec (segment->direction seg))
         (o (segment-a seg)))
     (make-point (+ (point-x o) (* (point-x vec) rel))
@@ -204,7 +204,7 @@
 
 ;;; Calculate relative position given a collinear point on the segment
 
-(define (segment:point->1d-coord seg p)
+(define (segment:point->normalized-1d seg p)
   (if (segment:collinear-point-on? seg p)
       (let ((s1 (segment-a seg))
             (s2 (segment-b seg)))
@@ -223,7 +223,7 @@
 ;;; Calculate relative position given a collinear point on the segment's line
 ;;; This version calculates positions out of the segment but still collinear
 
-(define (segment:point->1d-coord* seg p)
+(define (segment:point->normalized-1d* seg p)
   (if (segment:collinear-point? seg p)
       (let ((s1 (segment-a seg))
             (s2 (segment-b seg)))
@@ -385,8 +385,8 @@
 
 ;;; Get a point from a relative position in a pseq
 
-(define (pseq:1d-coord->point pseq x)
-  (segment:1d-coord->point
+(define (pseq:normalized-1d->point pseq x)
+  (segment:normalized-1d->point
    (pseq->segment pseq)
    x)) ; TODO: consider general case!!!!!!!!!!!
 
@@ -481,7 +481,7 @@
                                         ;    (vect2:normalize
       (segment->direction
         (make-segment
-          (segment:1d-coord->point approx rel)
+          (segment:normalized-1d->point approx rel)
           (segment-b approx)))))
 
 ;;; Calculate the normalized tangent vector in a point-list given the relative position
@@ -491,7 +491,7 @@
     (vect2:~normalize
       (segment->direction
         (make-segment
-          (segment:1d-coord->point approx rel)
+          (segment:normalized-1d->point approx rel)
           (segment-b approx))))))
 
 ;;; A list of all midsegments in a pseq
