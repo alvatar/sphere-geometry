@@ -106,6 +106,24 @@
 
 (define-structure segment a b)
 
+;;; Loose equality (they can be reversed)
+
+(define (segment:= s1 s2)
+  (let ((a1 (segment-a s1))
+        (a2 (segment-a s2))
+        (b1 (segment-b s1))
+        (b2 (segment-b s2)))
+   (or (and (point:= a1 a2)
+            (point:= b1 b2))
+       (and (point:= a1 b2)
+            (point:= b1 a2)))))
+
+;;; Strict equality (they can't be reversed)
+
+(define (segment:=* s1 s2)
+  (and (point:= (segment-a s1) (segment-a s2))
+       (point:= (segment-b s1) (segment-b s2))))
+
 ;;; Segment length
 
 (define (segment:~length seg)
@@ -246,25 +264,6 @@
   (and (list? plis)
        (not-null? plis)
        (point? (car plis))))
-
-;;; Calculate the bounding point of a pseq
-
-(define (pseq:bbox point-list)
-  (let ((first (car point-list))
-        (rest (cdr point-list)))
-    (make-bbox
-     (make-point (fold (lambda (point x) (min x (point-x point)))
-                       (point-x first)
-                       rest)
-                 (fold (lambda (point y) (min y (point-y point)))
-                       (point-y first)
-                       rest))
-     (make-point (fold (lambda (point x) (max x (point-x point)))
-                       (point-x first)
-                       rest)
-                 (fold (lambda (point y) (max y (point-y point)))
-                       (point-y first)
-                       rest)))))
 
 ;;; Length of a pseq
 
@@ -495,9 +494,57 @@
           (segment:1d-coord->point approx rel)
           (segment-b approx))))))
 
+;;; A list of all midsegments in a pseq
+
+(define (pseq:midsegments pseq)
+  ;; TODO: this might be the least efficient option of all!
+  (delete-duplicates
+   (pair-fold-2
+    (lambda (refps mids)
+      (append (pair-fold-2
+               (lambda (refps2 mids2)
+                 (cons (make-segment
+                        (point&point->midpoint (car refps)
+                                               (cadr refps))
+                        (point&point->midpoint (car refps2)
+                                               (cadr refps2)))
+                       mids2))
+               '()
+               pseq)
+              mids))
+    '()
+    pseq)
+   segment:=))
+
+;;; A list of all diagonals of a pseq
+
+(define (pseq:diagonals pseq)
+  ;; TODO: slow and maybe buggy (not tested)
+  (delete-duplicates
+   (pair-fold-x
+    3
+    (lambda (refps mids)
+      (append (pair-fold-2
+               (lambda (refps2 mids2)
+                 (cons (make-segment (car refps)
+                                     (caddr refps))
+                       mids2))
+               '()
+               pseq)
+              mids))
+    '()
+    pseq)
+   segment:=))
+
 ;-------------------------------------------------------------------------------
 ; Basic conversions and locus
 ;-------------------------------------------------------------------------------
+
+;;; Midpoint between 2 points
+
+(define (point&point->midpoint p1 p2)
+  (make-point (/ (+ (point-x p1) (point-x p2)) 2)
+              (/ (+ (point-y p1) (point-y p2)) 2)))
 
 ;;; Direction of the line passing through two points
 
@@ -597,44 +644,6 @@
   (map (lambda (a b) (make-segment b a))
        (cdr pseq)
        pseq))
-
-;-------------------------------------------------------------------------------
-; Bounding boxes
-;-------------------------------------------------------------------------------
-
-(define-structure bbox lefttop rightbottom)
-
-;;; Calculate the diagonal segment connecting the two extremes of the bb
-
-(define (bbox:diagonal-segment bb)
-  (make-segment (bbox-lefttop bb)
-                (bbox-rightbottom bb)))
-
-;;; Bounding box size segment
-
-(define (bbox:size-segment bb)
-  (segment->direction (bbox:diagonal-segment bb)))
-
-;;; Calculate left-bottom
-
-(define (bbox-leftbottom bb)
-  (make-point (point-x (bbox-lefttop bb))
-              (point-y (bbox-rightbottom bb))))
-
-;;; Calculate right-top
-
-(define (bbox-righttop bb)
-  (make-point (point-x (bbox-rightbottom bb))
-              (point-y (bbox-lefttop bb))))
-
-;;; Bounding box centroid
-
-(define (bbox:centroid bb)
-  (pseq:centroid (list
-                  (bbox-lefttop bb)
-                  (bbox-righttop bb)
-                  (bbox-rightbottom bb)
-                  (bbox-leftbottom bb))))
 
 ;-------------------------------------------------------------------------------
 ; Distances/squared distances
@@ -1074,6 +1083,8 @@
 ;-------------------------------------------------------------------------------
 ; Predicates
 ;-------------------------------------------------------------------------------
+
+;;; TODO: MOVE TO POINT
 
 ;;; Are these points collinear?
 

@@ -12,6 +12,7 @@
 
 (import (std srfi/1)
         ../core/functional
+        ../core/list
         kernel)
 
 ;-------------------------------------------------------------------------------
@@ -53,8 +54,30 @@
 
 (define pseq:extreme-bottom (curry find.extreme > point-y > point-x))
 
+;;;
+;;; TODO: these "longest" finding procedures should give information on unique results
+
+;;; Find the direction that describes the longest possible diagonal
+
+(define (find.longest-diagonal pseq)
+  (max/generator segment:squaredlength
+                 (pseq:diagonals pseq)))
+
+;;; Find the direction that describes the longest possible segment connectig
+;;; side mid-points
+
+(define (find.longest-midsegment pseq)
+  (max/generator segment:squaredlength
+                 (pseq:midsegments pseq)))
+
+;;; Find the direction that describes the longest possible segment produced by
+;;; the intersection of a line passing through the center of the polygon
+
+(define (find.longest-intersections pseq)
+  (error "unimplemented"))
+
 ;-------------------------------------------------------------------------------
-; Nearest queries
+; Nearest
 ;-------------------------------------------------------------------------------
 
 ;;; Find in a pseq the segment that is nearest to a point
@@ -91,22 +114,11 @@
       (car sl)))
 
 ;-------------------------------------------------------------------------------
-; Directions
+; Locus
 ;-------------------------------------------------------------------------------
 
-;;; Find the direction that describes the longest possible diagonal
+;;; Direction of the line passing through a point and perpendicular to a pseq
 
-(define (find.direction/longest-diagonal pseq)
-  (error "unimplemented"))
-
-;;; Find the direction that describes the longest possible segment connectig
-;;; side mid-points
-
-(define (find.direction/longest-midsegment pseq)
-  (error "unimplemented"))
-
-;;; Find the direction that describes the longest possible segment produced by
-;;; the intersection of a line passing through the center of the polygon
-
-(define (find.direction/longest-intersections pseq)
-  (error "unimplemented"))
+(define (point&pseq-perpendicular->direction p pseq)
+  (direction:perpendicular (segment->direction
+                            (find.nearest-segment-to-point/pseq p pseq))))

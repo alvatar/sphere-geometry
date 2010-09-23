@@ -18,7 +18,37 @@
         ../math/exact-algebra
         ../math/inexact-algebra
         ../visualization
-        kernel)
+        kernel
+        bounding-box)
+
+;-------------------------------------------------------------------------------
+; Point generation
+;-------------------------------------------------------------------------------
+
+;;; Generate inexact random point
+
+(define (~generate.random-point)
+  (make-point (random-real)
+              (random-real)))
+
+;;; Generate exact random point
+
+(define (generate.random-point)
+  (make-point (inexact->exact (random-real))
+              (inexact->exact (random-real))))
+
+;;; Point between two points
+
+(define (generate.point/two-points pa pb alpha)
+  (vect2+
+   pa
+   (vect2:*scalar (point&point->direction pa pb)
+                  alpha)))
+
+;;; Random point between two points
+
+(define (~generate.random-point/two-points pa pb)
+  (generate.point/two-points pa pb (random-exact)))
 
 ;-------------------------------------------------------------------------------
 ; Direction generation
@@ -36,34 +66,19 @@
   (make-direction (inexact->exact (random-real))
                   (inexact->exact (random-real))))
 
-;;; Generate inexact random point
-
-(define (~generate.random-point)
-  (make-point (random-real)
-              (random-real)))
-
-;;; Generate exact random point
-
-(define (generate.random-point)
-  (make-point (inexact->exact (random-real))
-              (inexact->exact (random-real))))
-
 ;-------------------------------------------------------------------------------
-; Point generation
+; Line generation
 ;-------------------------------------------------------------------------------
 
-;;; Point between two points
+;;; Generates 2 values: the two parallels to the given one at the given distance
 
-(define (generate.point/two-points pa pb alpha)
-  (vect2+
-   pa
-   (vect2:*scalar (point&point->direction pa pb)
-                  alpha)))
-
-;;; Random point between two points
-
-(define (~generate.random-point/two-points pa pb)
-  (generate.point/two-points pa pb (random-exact)))
+(define (generate.parallels-at-distance line distance)
+  (let ((perp (vect2:*scalar
+               (vect2:inexact->exact (vect2:~normalize
+                                      (direction:perpendicular (line->direction line))))
+               (inexact->exact distance))))
+    (values (translate.line line perp)
+            (translate.line line (vect2:symmetric perp)))))
 
 ;-------------------------------------------------------------------------------
 ; Point mesh generation
@@ -133,17 +148,3 @@
                          (modifier (make-point (+ offset-x (point-x p))
                                                (point-y p)))))
               start))))
-
-;-------------------------------------------------------------------------------
-; Line generation
-;-------------------------------------------------------------------------------
-
-;;; Generates 2 values: the two parallels to the given one at the given distance
-
-(define (generate.parallels-at-distance line distance)
-  (let ((perp (vect2:*scalar
-               (vect2:inexact->exact (vect2:~normalize
-                                      (direction:perpendicular (line->direction line))))
-               (inexact->exact distance))))
-    (values (translate.line line perp)
-            (translate.line line (vect2:symmetric perp)))))
