@@ -241,12 +241,21 @@
 
 ;;; Calculate a point given a 1d coordinate in a segment
 
-(define (segment:1d-coord->point seg coord)
-  (error "unimplemented"))
+(define (segment:~1d-coord->point seg coord)
+  (let ((vec (vect2:~normalize (segment->direction seg)))
+        (o (segment-a seg)))
+    (make-point (+ (point-x o) (* (point-x vec) coord))
+                (+ (point-y o) (* (point-y vec) coord)))))
 
 ;;; Calculate the 1d coordinate in a segment given a collinear point
 
 (define (segment:point->1d-coord seg p)
+  (error "unimplemented"))
+
+;;; Calculate the 1d coordinate in a segment gicen a collinear point
+;;; This version calculates positions out of the segment but still collinear
+
+(define (segment:point->1d-coord* seg p)
   (error "unimplemented"))
 
 ;;; Calculate the segment's mid point
