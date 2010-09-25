@@ -146,6 +146,12 @@
   (or (point:= p (segment-a seg))
       (point:= p (segment-b seg))))
 
+;;; Tell whether the two segments are connected
+
+(define (segment:connected-segment? s1 s2)
+  (or (segment:end-point? s2 (segment-a s1))
+      (segment:end-point? s2 (segment-b s1))))
+
 ;;; Is point collinear to segment?
 
 (define (segment:collinear-point? seg p)
@@ -180,12 +186,6 @@
                                          (third merged-pseq))
                                         (first merged-pseq)
                                         (fourth merged-pseq))))
-
-;;; Tell whether the two segments are connected
-
-(define (segment:connected-segment? s1 s2)
-  (or (segment:end-point? s2 (segment-a s1))
-      (segment:end-point? s2 (segment-b s1))))
 
 ;;; Tell whether the segments are parallel
 
@@ -714,7 +714,19 @@
            p
            (cdr plis))))))
 
-;;; Calculate the minimum squared distance between two pseqs, considering only end points
+;;; Calculate the minimum squared distance between the endpoints of two segments
+
+(define (squareddistance.segment-segment/endpoints s1 s2)
+  (let ((s1a (segment-a s1))
+        (s1b (segment-b s1))
+        (s2a (segment-a s2))
+        (s2b (segment-b s2)))
+    (min (squareddistance.point-point s1a s2a)
+         (squareddistance.point-point s1a s2b)
+         (squareddistance.point-point s1b s2a)
+         (squareddistance.point-point s1b s2b))))
+
+;;; Calculate the minimum squared distance between the endpoints of two pseqs
 
 (define (squareddistance.pseq-pseq/endpoints ps1 ps2)
   (let ((ps1-f (first ps1))
@@ -741,7 +753,12 @@
 (define (~distance.point-pseq p plis)
   (sqrt (squareddistance.point-pseq p plis)))
 
-;;; Calculate the minimum distance between two pseqs, considering only end points
+;;; Calculate the minimum distance between the end points of two segments
+
+(define (~distance.segment-segment/endpoints s1 s2)
+  (sqrt (squareddistance.segment-segment/endpoints s1 s2)))
+
+;;; Calculate the minimum distance between the end points of two pseqs
 
 (define (~distance.pseq-pseq/endpoints ps1 ps2)
   (sqrt (squareddistance.pseq-pseq/endpoints ps1 ps2)))
