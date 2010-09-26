@@ -124,6 +124,20 @@
   (and (point:= (segment-a s1) (segment-a s2))
        (point:= (segment-b s1) (segment-b s2))))
 
+;;; Convert to inexact segment
+
+(define (segment:exact->inexact s)
+  (make-segment
+   (vect2:exact->inexact (segment-a s))
+   (vect2:exact->inexact (segment-b s))))
+
+;;; Convert to exact segment
+
+(define (segment:inexact->exact s)
+  (make-segment
+   (vect2:inexact->exact (segment-a s))
+   (vect2:inexact->exact (segment-b s))))
+
 ;;; Segment length
 
 (define (segment:~length seg)
