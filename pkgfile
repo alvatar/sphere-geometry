@@ -1,0 +1,8 @@
+(package
+ (version v0.1)
+ (maintainer "Álvaro Castro-Castilla http://castrocastilla.com")
+ (author "Álvaro Castro-Castilla http://castrocastilla.com")
+ (homepage "http://castrocastilla.com")
+ (description "Geometrical procedures for Scheme")
+ (keywords geometry)
+ (license mit))

@@ -5,8 +5,8 @@
 ;;; Tests for geometry queries
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(import (std srfi/64)
-        ../../math/exact-algebra
+(import (srfi 64-test)
+        #(math exact-algebra)
         ../kernel
         ../query)
 

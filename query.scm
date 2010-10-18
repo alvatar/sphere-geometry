@@ -10,9 +10,8 @@
 ;;          (block))
 ;; (compile-options force-compile: #t)
 
-(import (std srfi/1)
-        ../core/functional
-        ../core/list
+(import (srfi 1-list)
+        #(core functional list)
         kernel)
 
 ;-------------------------------------------------------------------------------
@@ -101,7 +100,7 @@
 
 (define (find.nearest-segment-to-point/segment-list p sl) ; TODO: should return several in case they are at the same dist?
   ;; TODO: not tested!
-  (%accept (and (list? pseq) (segment? (car sl))) "not a proper segment list")
+  (%accept (and (list? p) (segment? (car sl))) "not a proper segment list")
   (if (> (length sl) 1)
       (pair-fold-2 (lambda (tail acc)
                      (let ((current-segment (car tail)))

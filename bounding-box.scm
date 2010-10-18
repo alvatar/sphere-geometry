@@ -10,7 +10,7 @@
 ;;          (block))
 ;; (compile-options force-compile: #t)
 
-(import (std srfi/1)
+(import (srfi 1-list)
         kernel)
 
 (define-structure bbox lefttop rightbottom)

@@ -10,16 +10,11 @@
 ;;          (block))
 ;; (compile-options force-compile: #t)
 
-(import (std srfi/1)
-        ../core/syntax
-        ../core/functional
-        ../core/debugging
-        ../core/list
-        ../math/exact-algebra
-        ../math/inexact-algebra
-        ../visualization
-        kernel
-        bounding-box)
+(import (srfi 1-list)
+        #(core debugging functional list syntax)
+        #(math exact-algebra inexact-algebra)
+        bounding-box
+        kernel)
 
 ;-------------------------------------------------------------------------------
 ; Point generation

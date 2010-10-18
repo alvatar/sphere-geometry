@@ -5,8 +5,8 @@
 ;;; Tests for geometry package
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(import (std srfi/64)
-        ../../math/exact-algebra
+(import (srfi 64-test)
+        #(math exact-algebra)
         ../kernel)
 
 (define-syntax test-equal/=
@@ -47,7 +47,7 @@
 ;-------------------------------------------------------------------------------
 
 (test-equal "segment:point-relative-position"
-            (segment:point->1d-coord
+            (segment:point->normalized-1d
              (make-segment (make-point 1.0 2.0) (make-point 3.0 2.0))
              (make-point 2.0 2.0))
             0.5)

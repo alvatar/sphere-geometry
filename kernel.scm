@@ -5,17 +5,17 @@
 ;;; Geometric kernel
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; (declare (standard-bindings)
-;;          (extended-bindings)
-;;          (block))
-;; (compile-options force-compile: #t)
+(declare (standard-bindings)
+         (extended-bindings)
+         (block))
+(compile-options force-compile: #t)
 
-(import (std srfi/1)
-        ../core/list
-        ../core/syntax
-        ../core/debugging
-        ../math/exact-algebra
-        ../math/inexact-algebra)
+(import (srfi 1-list)
+        #(core debugging
+               list
+               syntax)
+        #(math exact-algebra
+               inexact-algebra))
 
 (%activate-checks)
 
