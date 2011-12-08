@@ -8,14 +8,13 @@
 (declare (standard-bindings)
          (extended-bindings)
          (block))
-(compile-options force-compile: #t)
 
-(import (srfi 1-list)
-        #(core debugging
-               list
-               syntax)
-        #(math exact-algebra
-               inexact-algebra))
+(import (srfi 1-lists)
+        (base debugging
+              lists
+              syntax)
+        (math exact
+              inexact))
 
 (%activate-checks)
 
@@ -1143,7 +1142,7 @@
         (qx (point-x q)) (qy (point-y q))
         (rx (point-x r)) (ry (point-y r)))
     (zero?
-     (determinant:2x2 (- qx px) (- qy py)
+     (determinant-2x2 (- qx px) (- qy py)
                       (- rx px) (- ry py)))))
 
 ;;; Are these points collinear and ordered (left-to-right or right-to-left)?

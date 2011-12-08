@@ -5,13 +5,12 @@
 ;;; Geometric queries: search and sort
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; (declare (standard-bindings)
-;;          (extended-bindings)
-;;          (block))
-;; (compile-options force-compile: #t)
+(declare (standard-bindings)
+         (extended-bindings)
+         (block))
 
-(import (srfi 1-list)
-        #(core functional list)
+(import (srfi 1-lists)
+        (base functional lists)
         kernel)
 
 ;-------------------------------------------------------------------------------

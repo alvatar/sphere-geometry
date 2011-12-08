@@ -1,8 +1,10 @@
 (package
  (version v0.1)
- (maintainer "Álvaro Castro-Castilla http://castrocastilla.com")
- (author "Álvaro Castro-Castilla http://castrocastilla.com")
- (homepage "http://castrocastilla.com")
- (description "Geometrical procedures for Scheme")
+ (maintainer "Álvaro Castro-Castilla")
+ (author "Álvaro Castro-Castilla")
+ (description "Computational geometry")
  (keywords geometry)
- (license mit))
+ (license mit)
+
+ (source-directory "src")
+ (default-module kernel))
