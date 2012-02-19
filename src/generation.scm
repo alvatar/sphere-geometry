@@ -44,74 +44,6 @@
 (define (~generate.random-point/two-points pa pb)
   (generate.point/two-points pa pb (random-exact)))
 
-;-------------------------------------------------------------------------------
-; Direction generation
-;-------------------------------------------------------------------------------
-
-;;; Generate inexact random direction
-
-(define (~generate.random-direction)
-  (make-direction (random-real)
-                  (random-real)))
-
-;;; Generate exact random direction
-
-(define (generate.random-direction)
-  (make-direction (inexact->exact (random-real))
-                  (inexact->exact (random-real))))
-
-;-------------------------------------------------------------------------------
-; Line generation
-;-------------------------------------------------------------------------------
-
-;;; Generates 2 values: the two parallels to the given one at the given distance
-
-(define (generate.parallels-at-distance line distance)
-  (let ((perp (vect2:*scalar
-               (vect2:inexact->exact (vect2:~normalize
-                                      (direction:perpendicular (line->direction line))))
-               (inexact->exact distance))))
-    (values (translate.line line perp)
-            (translate.line line (vect2:symmetric perp)))))
-
-;-------------------------------------------------------------------------------
-; Point mesh generation
-;-------------------------------------------------------------------------------
-
-;;; Return a random point that is inside a given pseq
-
-(define (~generate.random-point-inside pseq)
-  (define (gen a b)
-    (aif p
-         (curry pseq:point-inside? pseq)  
-         (make-point (random-real/range (point-x a) (point-x b))
-                     (random-real/range (point-y a) (point-y b)))
-         p
-         (gen a b)))
-  (let ((bounding-box (pseq:bbox pseq)))
-    (gen
-     (bbox-lefttop bounding-box)
-     (bbox-rightbottom bounding-box))))
-
-;;; Return a random point that is inside a given pseq
-
-(define (~generate.random-points/separation&boundaries N pseq p-dist b-dist)
-                                        ; TODO: OPTIMIZE, A way would be dividing the space
-  (define (respects-distances? p plis)
-    (every (lambda (p-in-plis) (< p-dist (~distance.point-point p p-in-plis))) plis))
-  (define (respects-boundaries? p)
-    (< b-dist (~distance.point-pseq p pseq)))
-  (define (gen n plis)
-    (aif p
-         (lambda (p) (and (respects-distances? p plis)
-                     (respects-boundaries? p)))
-         (~generate.random-point-inside pseq)
-         (if (>= n N)
-             (cons p plis)
-             (gen (add1 n) (cons p plis)))
-         (gen n plis)))
-  (gen 0 '()))
-
 ;;; Generate regular point mesh
 
 (define (generate.point-mesh-centered bb limits-offset offset-x offset-y #!optional point-modifier)
@@ -142,3 +74,66 @@
                          (modifier (make-point (+ offset-x (point-x p))
                                                (point-y p)))))
               start))))
+
+;;; Return a random point that is inside a given pseq
+
+(define (~generate.random-point-inside pseq)
+  (define (gen a b)
+    (aif p
+         (curry pseq:point-inside? pseq)  
+         (make-point (random-real/range (point-x a) (point-x b))
+                     (random-real/range (point-y a) (point-y b)))
+         p
+         (gen a b)))
+  (let ((bounding-box (pseq:bbox pseq)))
+    (gen
+     (bbox-lefttop bounding-box)
+     (bbox-rightbottom bounding-box))))
+
+;;; Return a random point that is inside a given pseq, with a minimal separation
+;;; between points
+
+(define (~generate.random-points/separation N pseq min-dist)
+                                        ; TODO: OPTIMIZE, A way would be dividing the space
+  (define (respects-distances? p plis)
+    (every (lambda (p-in-plis) (< min-dist (~distance.point-point p p-in-plis))) plis))
+  (define (gen n plis)
+    (aif p
+         (lambda (p) (respects-distances? p plis))
+         (~generate.random-point-inside pseq)
+         (if (>= n N)
+             (cons p plis)
+             (gen (add1 n) (cons p plis)))
+         (gen n plis)))
+  (gen 0 '()))
+
+;-------------------------------------------------------------------------------
+; Direction generation
+;-------------------------------------------------------------------------------
+
+;;; Generate inexact random direction
+
+(define (~generate.random-direction)
+  (make-direction (random-real)
+                  (random-real)))
+
+;;; Generate exact random direction
+
+(define (generate.random-direction)
+  (make-direction (inexact->exact (random-real))
+                  (inexact->exact (random-real))))
+
+;-------------------------------------------------------------------------------
+; Line generation
+;-------------------------------------------------------------------------------
+
+;;; Generates 2 values: the two parallels to the given one at a specific distance
+
+(define (generate.parallels-at-distance line distance)
+  (let ((perp (vect2:*scalar
+               (vect2:inexact->exact (vect2:~normalize
+                                      (direction:perpendicular (line->direction line))))
+               (inexact->exact distance))))
+    (values (translate.line line perp)
+            (translate.line line (vect2:symmetric perp)))))
+

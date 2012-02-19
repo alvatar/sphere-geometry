@@ -14,6 +14,22 @@
 
 (define-structure bbox lefttop rightbottom)
 
+;;; left-bottom
+
+(define (bbox-leftbottom bb)
+  (make-point (point-x (bbox-lefttop bb))
+              (point-y (bbox-rightbottom bb))))
+
+;;; right-top
+
+(define (bbox-righttop bb)
+  (make-point (point-x (bbox-rightbottom bb))
+              (point-y (bbox-lefttop bb))))
+
+;-------------------------------------------------------------------------------
+; Properties
+;-------------------------------------------------------------------------------
+
 ;;; Calculate the diagonal segment connecting the two extremes of the bb
 
 (define (bbox:diagonal-segment bb)
@@ -25,18 +41,6 @@
 (define (bbox:size-segment bb)
   (segment->direction (bbox:diagonal-segment bb)))
 
-;;; Calculate left-bottom
-
-(define (bbox-leftbottom bb)
-  (make-point (point-x (bbox-lefttop bb))
-              (point-y (bbox-rightbottom bb))))
-
-;;; Calculate right-top
-
-(define (bbox-righttop bb)
-  (make-point (point-x (bbox-rightbottom bb))
-              (point-y (bbox-lefttop bb))))
-
 ;;; Bounding box centroid
 
 (define (bbox:centroid bb)
@@ -47,7 +51,7 @@
                   (bbox-leftbottom bb))))
 
 ;-------------------------------------------------------------------------------
-; Element bounding boxes
+; Bounding boxes of elements
 ;-------------------------------------------------------------------------------
 
 ;;; Calculate the bounding point of a pseq

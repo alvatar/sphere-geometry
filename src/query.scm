@@ -19,9 +19,9 @@
 
 ;;; General extreme query
 
-(define (find.extreme comparator selector
-                      tie-comparator tie-selector
-                      pseq)
+(define (extreme comparator selector
+                 tie-comparator tie-selector
+                 l)
   (reduce
    (lambda (p extreme)
      (let ((a (selector p))
@@ -33,46 +33,24 @@
                                   (tie-selector extreme)) extreme)
                  (else p)))
        (else p))))
-   (car pseq)
-   pseq))
+   (car l)
+   l))
 
-;;; pseq right-most point
+;;; right-most point
 
-(define pseq:extreme-right (curry find.extreme < point-x < point-y))
+(define extreme.right (curry extreme < point-x < point-y))
 
-;;; pseq left-most point
+;;; left-most point
 
-(define pseq:extreme-left (curry find.extreme > point-x > point-y))
+(define extreme.left (curry extreme > point-x > point-y))
 
-;;; pseq top-most point
+;;; top-most point
 
-(define pseq:extreme-top (curry find.extreme < point-y < point-x))
+(define extreme.top (curry extreme < point-y < point-x))
 
-;;; pseq bottom-most point
+;;; bottom-most point
 
-(define pseq:extreme-bottom (curry find.extreme > point-y > point-x))
-
-;;;
-;;; TODO: these "longest" finding procedures should give information on unique results
-
-;;; Find the direction that describes the longest possible diagonal
-
-(define (find.longest-diagonal pseq)
-  (max/generator segment:squaredlength
-                 (pseq:diagonals pseq)))
-
-;;; Find the direction that describes the longest possible segment connectig
-;;; side mid-points
-
-(define (find.longest-midsegment pseq)
-  (max/generator segment:squaredlength
-                 (pseq:midsegments pseq)))
-
-;;; Find the direction that describes the longest possible segment produced by
-;;; the intersection of a line passing through the center of the polygon
-
-(define (find.longest-intersections pseq)
-  (error "unimplemented"))
+(define extreme.bottom (curry extreme > point-y > point-x))
 
 ;-------------------------------------------------------------------------------
 ; Nearest
@@ -80,7 +58,7 @@
 
 ;;; Find in a pseq the segment that is nearest to a point
 
-(define (find.nearest-segment-to-point/pseq p pseq) ; TODO: should return several in case they are at the same dist?
+(define (nearest.segment-to-point/pseq p pseq) ; TODO: should return several in case they are at the same dist?
   (%accept (and (pseq? pseq) (> (length pseq) 1)) "not a proper pseq")
   (let ((first-segment (make-segment (car pseq) (cadr pseq))))
     (if (> (length pseq) 2)
@@ -97,7 +75,7 @@
 
 ;;; Find in a pseq the segment that is nearest to a point
 
-(define (find.nearest-segment-to-point/segment-list p sl) ; TODO: should return several in case they are at the same dist?
+(define (nearest.segment-to-point/segment-list p sl) ; TODO: should return several in case they are at the same dist?
   ;; TODO: not tested!
   (%accept (and (list? p) (segment? (car sl))) "not a proper segment list")
   (if (> (length sl) 1)
@@ -112,11 +90,47 @@
       (car sl)))
 
 ;-------------------------------------------------------------------------------
-; Locus
+; Directions
 ;-------------------------------------------------------------------------------
+
+;;;
+;;; TODO: these "longest" ng procedures should give information on unique results
+
+;;; Find the direction that describes the longest possible diagonal
+
+(define (direction.longest-diagonal pseq)
+  (max/generator segment:squaredlength
+                 (pseq:diagonals pseq)))
+
+;;; Find the direction that describes the longest possible segment connectig
+;;; side mid-points
+
+(define (direction.longest-midsegment pseq)
+  (max/generator segment:squaredlength
+                 (pseq:midsegments pseq)))
+
+;;; Find the direction that describes the longest possible segment produced by
+;;; the intersection of a line passing through the center of the polygon
+
+(define (direction.longest-intersections pseq)
+  (error "unimplemented"))
 
 ;;; Direction of the line passing through a point and perpendicular to a pseq
 
-(define (point&pseq-perpendicular->direction p pseq)
+(define (direction.point&pseq-perpendicular p pseq)
   (direction:perpendicular (segment->direction
-                            (find.nearest-segment-to-point/pseq p pseq))))
+                            (nearest.segment-to-point/pseq p pseq))))
+
+;-------------------------------------------------------------------------------
+; Distances
+;-------------------------------------------------------------------------------
+
+(define (haversine ? ?)
+  (error "Not implemented"))
+
+;-------------------------------------------------------------------------------
+; Statistical
+;-------------------------------------------------------------------------------
+
+(define (geometric-median pseq)
+  (error "Not implemented"))

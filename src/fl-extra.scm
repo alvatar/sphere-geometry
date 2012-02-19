@@ -2,12 +2,8 @@
 ;;; Licensed under the GPLv3 license, see LICENSE file for full description.
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Fixnum geometrical operations
+;;; Fixnum-specific operations
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;-------------------------------------------------------------------------------
-; Distance
-;-------------------------------------------------------------------------------
 
 ;;; Calculate the distance between two points
 
