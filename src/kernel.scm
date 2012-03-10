@@ -9,10 +9,6 @@
          (extended-bindings)
          (block))
 
-(import (srfi 1-lists)
-        (base lists
-              syntax))
-
 ;;; TODO: 2d structures should be renamed with 2d suffix
 
 ;-------------------------------------------------------------------------------
@@ -358,14 +354,17 @@
 ; Point sequences
 ;-------------------------------------------------------------------------------
 
-;; TODO: This should be a type
+(define-type pseq
+  closed?
+  points)
 
-;;; Is pseq?
+;;; Is pseq well-formed?
 
-(define (pseq? plis)
-  (and (list? plis)
-       (not-null? plis)
-       (every point? plis)))
+(define (pseq:well-formed? pseq)
+  (let ((points (pseq-points pseq)))
+   (and (list? points)
+        (not-null? plis)
+        (every point? plis))))
 
 ;;; Is pseq? only first is checked
 
@@ -390,7 +389,6 @@
 ;;; Is end point?
 
 (define (pseq:end-point? pseq p)
-  (%accept (and (pseq? pseq) (point? p)))
   (or (point:= (first pseq) p)
       (point:= (last pseq) p)))
 
