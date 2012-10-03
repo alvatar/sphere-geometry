@@ -1,24 +1,29 @@
-(define lib-directory "lib/")
-(define lib-name "geometry")
-(define lib-suffix ".o1")
+(include "~~spheres/prelude#.scm")
+(%include sake: utils#)
 
-(define-task init ()
-  (make-directory (current-build-directory)))
+(define modules '(kernel))
 
-(define-task clean (init)
-  (delete-file (current-build-directory))
-  (delete-file lib-directory))
+(define-task clean ()
+  (sake:default-clean))
 
-(define-task compile (init)
-  (gambit-compile-file
-   "module.scm"
-   output: (string-append (current-build-directory) lib-name lib-suffix)))
+(define-task compile ()
+  (for-each (lambda (m)
+              (sake:compile-c-file (sake:generate-c-file m))
+              (sake:compile-c-file (sake:generate-c-file
+                                    m
+                                    version: '(debug)
+                                    compiler-options: '(debug))))
+            modules))
 
-(define-task install (compile)
-  (make-directory lib-directory)
-  (delete-file (string-append lib-directory lib-name lib-suffix))
-  (copy-file (string-append (current-build-directory) lib-name lib-suffix)
-             (string-append lib-directory lib-name lib-suffix)))
+(define-task install ()
+  (for-each (lambda (m)
+              (sake:install-compiled-module m)
+              (sake:install-compiled-module m version: '(debug)))
+            modules)
+  (sake:install-system-sphere))
+
+(define-task uninstall ()
+  (sake:uninstall-system-sphere))
 
 (define-task all (compile install)
-  '(compile and install))
+  'all)
