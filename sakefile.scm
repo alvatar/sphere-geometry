@@ -4,23 +4,15 @@
   (sake:default-clean))
 
 (define-task compile ()
-  (for-each (lambda (m)
-              (sake:compile-c-to-o (sake:compile-to-c m))
-              (sake:compile-c-to-o (sake:compile-to-c
-                                    m
-                                    version: '(debug)
-                                    compiler-options: '(debug))))
+  (for-each (lambda (m) (sake:compile-c-to-o (sake:compile-to-c m)))
             modules))
 
 (define-task install ()
-  (for-each (lambda (m)
-              (sake:install-compiled-module m)
-              (sake:install-compiled-module m version: '(debug)))
-            modules)
-  (sake:install-system-sphere))
+  (for-each sake:install-compiled-module modules)
+  (sake:install-sphere-to-system))
 
 (define-task uninstall ()
-  (sake:uninstall-system-sphere))
+  (sake:uninstall-sphere-from-system))
 
 (define-task all (compile install)
   'all)
